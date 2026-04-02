@@ -1,0 +1,9 @@
+/BackAndServe/venv/
+/BackAndServe/.env
+
+/BackAndServe/database.db
+/BackAndServe/database.db-shm
+/BackAndServe/database.db-wal
+
+**__pycache__**
+
