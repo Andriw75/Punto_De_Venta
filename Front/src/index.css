@@ -1,0 +1,69 @@
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Colores principales de la interfaz */
+  --primary: #1e3a5f;
+  /* Color principal del sidebar y elementos destacados */
+  --primary-light: #2a4d7c;
+  /* Variante más clara del color principal */
+  --primary-dark: #15273d;
+  /* Variante más oscura del color principal */
+
+  --secondary: #27ae60;
+  /* Color secundario para botones, acentos y elementos activos */
+  --secondary-rgb: 39, 174, 96;
+  /* RGB del color secundario, usado en transparencias */
+  --secondary-light: #2ecc71;
+  /* Variante más clara del color secundario */
+  --secondary-dark: #219150;
+  /* Variante más oscura del color secundario */
+
+  /* Colores de texto */
+  --text-light: #f1ecec;
+  /* Color de texto sobre fondos oscuros (sidebar) */
+  --text-dark: #1e3a5f;
+  /* Color de texto sobre fondos claros (contenido principal) */
+
+  /* Fondos y overlays */
+  --bg-overlay: rgba(255, 255, 255, 0.06);
+  /* Fondo semitransparente para hover o secciones */
+  --bg-overlay-hover: rgba(255, 255, 255, 0.12);
+  /* Fondo semitransparente al pasar el mouse */
+  --shadow: rgba(0, 0, 0, 0.2);
+  /* Sombra genérica para botones y tarjetas */
+
+  /* Sidebar */
+  --sidebar-bg: var(--primary);
+  /* Fondo del sidebar */
+  --sidebar-contrast: var(--text-light);
+  /* Color de texto e íconos dentro del sidebar */
+  --menu-hover: var(--bg-overlay-hover);
+  /* Fondo de los ítems de menú al hover */
+  --submenu-border: rgba(var(--secondary-rgb), 0.28);
+  /* Línea de separación para submenús */
+  --user-bg-hover: rgba(255, 255, 255, 0.08);
+  /* Fondo del bloque de usuario al hover */
+  --color-icon-side: rgba(255, 255, 255, 0.82);
+  /* Color de íconos del sidebar */
+
+  /* Fondo general de la página */
+  --color-background-page: #f0f4f8;
+  /* Color de fondo del contenido principal */
+
+
+  --danger: red;
+  --warning: yellow;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
