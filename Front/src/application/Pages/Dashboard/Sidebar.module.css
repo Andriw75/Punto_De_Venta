@@ -1,0 +1,347 @@
+.sidebar {
+  width: 240px;
+  background: var(--sidebar-bg);
+  color: var(--sidebar-contrast);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  user-select: none;
+  gap: 16px;
+  transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar.collapsed {
+  width: 70px;
+  padding: 24px 8px;
+}
+
+.sidebar.collapsed .userName,
+.sidebar.collapsed .menuText,
+.sidebar.collapsed .arrow,
+.sidebar.collapsed .logoutText {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+  margin-left: 0;
+}
+
+/* user */
+.userSection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0 12px 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  font-size: 1.25rem;
+  background: var(--bg-overlay);
+  transition: all 0.22s ease;
+}
+
+.userSection:hover {
+  background: var(--user-bg-hover);
+  transform: translateX(2px);
+}
+
+.userIcon {
+  font-size: 24px;
+  flex-shrink: 0;
+  color: var(--sidebar-contrast);
+}
+
+.userName {
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.22s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* menu container */
+.menuContainer {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 4px;
+}
+
+.menuList {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.menuItem {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.button {
+  background-color: transparent;
+  border: none;
+  color: var(--sidebar-contrast);
+  padding: 12px 16px;
+  cursor: pointer;
+  font-size: 0.9375rem;
+  border-radius: 8px;
+  text-align: left;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.button::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 0;
+  transition: width 0.22s ease;
+  z-index: 0;
+}
+
+.button:hover::before {
+  width: 4px;
+  background: var(--secondary);
+}
+
+.button:hover {
+  background-color: var(--menu-hover);
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px var(--shadow);
+}
+
+.button:hover .menuIcon {
+  transform: scale(1.06) rotate(4deg);
+}
+
+.active {
+  background-color: rgba(var(--secondary-rgb), 0.12) !important;
+  border-left: 3px solid var(--secondary);
+}
+
+.active .menuIcon {
+  color: var(--secondary);
+}
+
+.active::before {
+  width: 4px !important;
+  background: var(--secondary);
+}
+
+.menuIcon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  transition: all 0.22s ease;
+  color: var(--color-icon-side);
+}
+
+.menuText {
+  flex: 1;
+  font-weight: 500;
+  transition: all 0.22s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* submenu */
+.submenu {
+  padding-left: 40px;
+  margin-top: 4px;
+  border-left: 2px solid var(--submenu-border);
+  animation: slideDown 0.28s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* toggle label */
+.toggleLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 12px 16px;
+  border-radius: 8px;
+  user-select: none;
+  transition: all 0.22s ease;
+  color: var(--sidebar-contrast);
+  gap: 12px;
+}
+
+.toggleLabel:hover {
+  background-color: var(--menu-hover);
+  transform: translateX(4px);
+}
+
+.toggleContent {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.arrow {
+  font-size: 12px;
+  transition: transform 0.22s ease;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.toggleLabel:hover .arrow {
+  color: var(--secondary);
+}
+
+.arrow.open {
+  transform: rotate(90deg);
+}
+
+/* logout */
+.logoutButton {
+  background: var(--secondary);
+  border: none;
+  color: white;
+  padding: 12px 16px;
+  cursor: pointer;
+  font-size: 0.9375rem;
+  border-radius: 8px;
+  width: 100%;
+  margin-top: auto;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(var(--secondary-rgb), 0.14);
+}
+
+.logoutButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(var(--secondary-rgb), 0.22);
+}
+
+.logoutIcon {
+  font-size: 18px;
+  transition: transform 0.35s ease;
+}
+
+.logoutButton:hover .logoutIcon {
+  transform: rotate(90deg);
+}
+
+.logoutText {
+  transition: all 0.22s ease;
+}
+
+/* custom tooltip when collapsed */
+.sidebar.collapsed .menuItem:hover .menuText {
+  opacity: 1;
+  width: auto;
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--secondary);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin-left: 8px;
+  white-space: nowrap;
+  z-index: 1000;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.22);
+}
+
+.sidebar.collapsed .menuItem:hover::after {
+  content: "";
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border-left: 6px solid var(--secondary);
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  margin-left: -1px;
+  z-index: 1001;
+}
+
+/* scrollbar */
+.menuContainer::-webkit-scrollbar {
+  width: 6px;
+}
+.menuContainer::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 3px;
+}
+.menuContainer::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 3px;
+}
+.menuContainer::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* responsive */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 70px;
+    padding: 20px 8px;
+  }
+  .sidebar.expanded {
+    width: 240px;
+    position: absolute;
+    z-index: 1000;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+  }
+  .sidebar:not(.expanded) .userName,
+  .sidebar:not(.expanded) .menuText,
+  .sidebar:not(.expanded) .arrow,
+  .sidebar:not(.expanded) .logoutText {
+    display: none;
+  }
+}
+
+.button:focus-visible,
+.toggleLabel:focus-visible,
+.logoutButton:focus-visible {
+  outline: 3px solid rgba(var(--secondary-rgb), 0.24);
+  outline-offset: 2px;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.menuIcon.pulse {
+  animation: pulse 2s infinite;
+}

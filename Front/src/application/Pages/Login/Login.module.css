@@ -1,0 +1,111 @@
+.container {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-background-page);
+  padding: 2rem;
+}
+
+.formCard {
+  width: 100%;
+  max-width: 380px;
+  background: #ffffff;
+  padding: 2.2rem 2rem;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.fieldGroup {
+  position: relative;
+  margin-bottom: 1.8rem;
+}
+
+.inputField {
+  width: 100%;
+  padding: 1rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 0.95rem;
+  background: #ffffff;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.inputField::placeholder {
+  color: transparent;
+}
+
+.inputField:focus {
+  border-color: var(--primary);
+  outline: none;
+}
+
+.inputField:disabled {
+  background: #f3f4f6;
+  cursor: not-allowed;
+}
+
+.floatingLabel {
+  position: absolute;
+  left: 0.75rem;
+  top: 1rem;
+  color: #9ca3af;
+  font-size: 0.95rem;
+  pointer-events: none;
+  transition: all 0.2s ease;
+}
+
+.inputField:focus+.floatingLabel,
+.inputField:not(:placeholder-shown)+.floatingLabel {
+  top: -0.35rem;
+  left: 0.5rem;
+  font-size: 0.75rem;
+  background: white;
+  padding: 0 0.25rem;
+  color: var(--primary);
+}
+
+.button {
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 6px;
+  border: none;
+  background: var(--primary);
+  color: var(--text-light);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.05s ease;
+}
+
+.button:hover:not(:disabled) {
+  background: var(--primary-light);
+}
+
+.button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.button:disabled {
+  background: #cbd5e1;
+  cursor: not-allowed;
+}
+
+/* Error */
+.error {
+  font-size: 0.8rem;
+  color: #dc2626;
+  margin-bottom: 1rem;
+  text-align: center;
+}

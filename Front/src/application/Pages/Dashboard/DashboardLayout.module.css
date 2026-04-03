@@ -1,0 +1,26 @@
+.wrapper {
+  display: flex;
+  min-height: 100vh;
+  background: var(--color-background-page, #f6f7fb);
+}
+
+.sidebarWrap {
+  width: 240px;
+  flex: 0 0 240px;
+  transition: width 0.22s ease;
+  overflow: hidden;
+}
+
+.sidebarWrapCollapsed {
+  width: 70px;
+  flex: 0 0 70px;
+}
+
+/* main content */
+.mainContent {
+  flex: 1;
+  background: var(--color-background-page, #f6f7fb);
+  /* padding: 24px; */
+  box-sizing: border-box;
+  transition: margin-left 0.22s ease;
+}
