@@ -35,20 +35,44 @@ class SQLiteDB:
                     self._initialized = True
 
     async def create_schem(self):
-        schem = """
+        tables = []
+
+        sql = """
 CREATE TABLE IF NOT EXISTS User (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username VARCHAR(250) UNIQUE NOT NULL,
     password VARCHAR(250) NOT NULL,
     permissions TEXT NOT NULL DEFAULT '{}'
 );
-        """
+"""
+        tables.append(sql)
+        
+        sql = """
+CREATE TABLE IF NOT EXISTS categories (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    color VARCHAR(7) NULL
+);
+"""
+        tables.append(sql)
 
-        schem += ""
+        sql = """
+CREATE TABLE IF NOT EXISTS audit_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username VARCHAR,
+    description TEXT,
+    action_type VARCHAR,
+    entity_type VARCHAR,
+    entity_id VARCHAR,
+    changes TEXT, -- JSON almacenado como texto, incluye data_before y data_after
+    created_at TIMESTAMP
+);
+"""
+        tables.append(sql)
 
-        await self._connection.execute(schem)
-
-
+        for t in tables:
+            await self._connection.execute(t)
+            
 
     @asynccontextmanager
     async def acquire(self):
@@ -60,7 +84,7 @@ CREATE TABLE IF NOT EXISTS User (
         try:
             yield self._connection
         except Exception as e:
-            logging.error(f"Error en conexión SQLite: {e}")
+            # logging.error(f"Error en conexión SQLite: {e}")
             raise
 
     @asynccontextmanager
@@ -73,7 +97,7 @@ CREATE TABLE IF NOT EXISTS User (
                 await conn.commit()
             except Exception as e:
                 await conn.rollback()
-                logging.warning(f"Transacción revertida: {e}")
+                # logging.warning(f"Transacción revertida: {e}")
                 raise
 
     # -------------------------

@@ -18,6 +18,16 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+# SOLO DESARROLLO
+from fastapi.middleware.cors import CORSMiddleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 from application.mnj_ws import WebSocketManager
 manager = WebSocketManager()
 @app.websocket("/ws")
@@ -37,6 +47,9 @@ async def websocket_endpoint(websocket: WebSocket):
 
 from application.authR import authR
 app.include_router(authR)
+
+from application.categoriesR import categoriesR
+app.include_router(categoriesR)
 
 #####################################################
 import sys
@@ -75,12 +88,11 @@ def get_local_ip():
 
 def run_server():
     global server_instance
-
     config = uvicorn.Config(
         app,
         host=HOST,
         port=PORT,
-        log_level="critical"
+        # log_level="critical"
     )
 
     server_instance = uvicorn.Server(config)
@@ -92,8 +104,8 @@ def start_server():
 
     if server_thread is None or not server_thread.is_alive():
 
-        HOST = get_local_ip()
-        # HOST = 'localhost'
+        # HOST = get_local_ip()
+        HOST = 'localhost'
         url = f"http://{HOST}:{PORT}"
 
         server_thread = threading.Thread(
