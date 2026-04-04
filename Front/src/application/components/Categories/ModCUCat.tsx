@@ -126,7 +126,6 @@ export const ModCUCat: Component<ModCUCatProps> = (props) => {
                     <label class={styles.label}>Nombre</label>
                     <input
                         type="text"
-                        placeholder="Ej. Bebidas"
                         value={name()}
                         onInput={(e) => setName(e.currentTarget.value)}
                         class={styles.input}
