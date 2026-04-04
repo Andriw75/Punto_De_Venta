@@ -1,4 +1,4 @@
-import { type Component, createSignal, For } from "solid-js";
+import { type Component, createSignal, For, Show } from "solid-js";
 import { useWebSocket } from "../context/web_socket";
 import { useNavigate } from "@solidjs/router";
 import { useAuth } from "../context/auth";
@@ -6,6 +6,7 @@ import stylesC from "./Categorias.module.css";
 import styles from "./Products.module.css";
 import type { ProductoRealTime } from "../../domain/products";
 import { normalize } from "./utils";
+import { ModCUProd } from "../components/Products/ModCUProd";
 
 const Products: Component = () => {
     const navigate = useNavigate();
@@ -18,9 +19,41 @@ const Products: Component = () => {
         ProductoRealTime | null | undefined
     >(undefined);
 
-    const handleNew = () => {
-        setSelectProduct(null);
+    /************************************************************************************/
+    const handleDelete = async (prod: ProductoRealTime) => {
+        console.table(prod);
+        // const result = await confirm(
+        //     "Atención",
+        //     `¿Seguro de eliminar la categoría ${cat.name}?`,
+        //     async () => await deleteCategory(cat.id),
+        // );
+
+        // if (result === null) return;
+
+        // if (result?.error) {
+        //     if (result.error.status === 401) {
+        //         await logout(false);
+        //         navigate("/login");
+        //         return;
+        //     }
+
+        //     addToast({
+        //         message: `Error al eliminar: ${result.error.detail}`,
+        //         type: "error",
+        //     });
+        //     return;
+        // }
+
+        // if (result?.data) {
+        //     addToast({
+        //         message: "Categoría eliminada",
+        //         type: "success",
+        //     });
+        // }
     };
+
+
+
 
     /************************************************************************************/
     const matchesSearch = (prod: ProductoRealTime, query: string) => {
@@ -68,7 +101,7 @@ const Products: Component = () => {
                         onInput={(e) => setSearch(e.currentTarget.value)}
                         class={stylesC.searchInput}
                     />
-                    <button class={stylesC.btnPrimary} onClick={handleNew}>
+                    <button class={stylesC.btnPrimary} onClick={() => setSelectProduct(null)}>
                         Agregar producto
                     </button>
                 </div>
@@ -111,14 +144,14 @@ const Products: Component = () => {
                                 <div class={styles.actions}>
                                     <button
                                         class={stylesC.btnEdit}
-                                        onClick={() => console.log("Editar producto:", item.prod)}
+                                        onClick={() => setSelectProduct(item.prod)}
                                     >
                                         ✏️
                                     </button>
 
                                     <button
                                         class={stylesC.btnDelete}
-                                        onClick={() => console.log("Eliminar producto:", item.prod)}
+                                        onClick={() => handleDelete(item.prod)}
                                     >
                                         🗑
                                     </button>
@@ -130,6 +163,15 @@ const Products: Component = () => {
 
             </div>
 
+            <Show when={currentProducts().length === 0}>
+                <p class={stylesC.emptyState}>No se encontraron productos</p>
+            </Show>
+
+            <Show when={selectProduct() !== undefined}>
+                <ModCUProd
+                    onClose={() => setSelectProduct(undefined)}
+                />
+            </Show>
         </>
 
     );
