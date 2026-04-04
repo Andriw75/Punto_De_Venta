@@ -8,6 +8,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 12px;
     margin-bottom: 16px;
 }
 
@@ -15,30 +16,47 @@
     background-color: var(--secondary);
     color: white;
     border: none;
-    border-radius: 6px;
-    padding: 0.6rem 1.2rem;
+    border-radius: 10px;
+    padding: 0.7rem 1.2rem;
     font-size: 1rem;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: background 0.2s, transform 0.1s;
+    white-space: nowrap;
 }
 
 .btnPrimary:hover {
     background-color: var(--secondary-dark);
 }
 
+.btnPrimary:active {
+    transform: translateY(1px);
+}
 
-/* GRID */
+.searchInput {
+    padding: 0.7rem 1rem;
+    border: 1px solid var(--primary-light);
+    border-radius: 10px;
+    font-size: 1rem;
+    width: min(420px, 100%);
+    outline: none;
+    background: white;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.searchInput:focus {
+    box-shadow: 0 0 0 1px var(--primary);
+}
+
 .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 16px;
 }
 
-/* CARD */
 .card {
     background: white;
-    border-radius: 12px;
-    padding: 16px;
+    border-radius: 14px;
+    padding: 14px 14px 14px 16px;
     box-shadow: 0 4px 10px var(--shadow);
     display: flex;
     justify-content: space-between;
@@ -52,30 +70,93 @@
     background: var(--bg-overlay);
 }
 
+.disabledCard {
+    opacity: 0.45;
+    filter: saturate(0.75);
+    background: #f8fafc;
+}
+
 .cardContent {
     display: flex;
     align-items: center;
+    min-width: 0;
+    flex: 1;
+}
+
+.nameRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.swatch {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    border: 2px solid rgba(17, 24, 39, 0.14);
+    box-shadow:
+        inset 0 1px 2px rgba(255, 255, 255, 0.35),
+        0 2px 8px rgba(0, 0, 0, 0.08);
+    flex: 0 0 auto;
+    position: relative;
+    overflow: hidden;
+}
+
+.swatch::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(45deg, rgba(255, 255, 255, 0.35) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.35) 75%, rgba(255, 255, 255, 0.35)),
+        linear-gradient(45deg, rgba(255, 255, 255, 0.35) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.35) 75%, rgba(255, 255, 255, 0.35));
+    background-size: 14px 14px;
+    background-position: 0 0, 7px 7px;
+    opacity: 0.18;
+    pointer-events: none;
+}
+
+.textGroup {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
 }
 
 .name {
-    font-weight: 600;
+    font-weight: 700;
     color: var(--text-dark);
+    font-size: 1rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-/* ACTIONS */
+.meta {
+    font-size: 0.82rem;
+    color: #6b7280;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    margin-top: 2px;
+}
+
 .actions {
     display: flex;
     gap: 8px;
+    margin-left: 12px;
+    flex: 0 0 auto;
 }
 
 .btnEdit,
 .btnDelete {
-    border: none;
-    padding: 6px 8px;
-    border-radius: 6px;
+    border: 2px solid rgba(17, 24, 39, 0.14);
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
     cursor: pointer;
     background: transparent;
     transition: 0.2s;
+    display: grid;
+    place-items: center;
 }
 
 .btnEdit:hover {
@@ -86,10 +167,8 @@
     background: rgba(255, 0, 0, 0.15);
 }
 
-.searchInput {
-    padding: 0.5rem 1rem;
-    border: 1px solid var(--primary-light);
-    border-radius: 6px;
-    font-size: 1rem;
-    width: 280px;
+.emptyState {
+    margin-top: 16px;
+    color: #6b7280;
+    font-size: 0.95rem;
 }

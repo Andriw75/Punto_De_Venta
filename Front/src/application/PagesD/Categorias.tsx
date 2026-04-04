@@ -9,18 +9,42 @@ import { useNavigate } from "@solidjs/router";
 import { useAuth } from "../context/auth";
 import { addToast } from "../common/UI/Toast/toastStore";
 
+
 const Categorias: Component = () => {
     const navigate = useNavigate();
     const { logout } = useAuth();
     const { currentCategories } = useWebSocket();
-    const [search, setSearch] = createSignal("");
-    const [selectCategory, setSelectCategory] = createSignal<CategoriesRealTime | null | undefined>(undefined);
 
-    const filteredCategories = () =>
-        currentCategories().filter((cat) =>
-            cat.name.toLowerCase().includes(search().toLowerCase()) ||
-            cat.id.toString().includes(search())
+    const [search, setSearch] = createSignal("");
+    const [selectCategory, setSelectCategory] = createSignal<
+        CategoriesRealTime | null | undefined
+    >(undefined);
+
+    const normalize = (value: string) => value.trim().toLowerCase();
+
+    const matchesSearch = (cat: CategoriesRealTime, query: string) => {
+        if (!query) return true;
+        return (
+            cat.name.toLowerCase().includes(query) ||
+            cat.id.toString().includes(query)
         );
+    };
+
+    const categoryItems = () => {
+        const query = normalize(search());
+
+        return [...currentCategories()]
+            .map((category) => ({
+                category,
+                matches: matchesSearch(category, query),
+            }))
+            .sort((a, b) => {
+                if (a.matches !== b.matches) return a.matches ? -1 : 1;
+                return a.category.name.localeCompare(b.category.name, "es", {
+                    sensitivity: "base",
+                });
+            });
+    };
 
     const handleEdit = (cat: CategoriesRealTime) => {
         setSelectCategory(cat);
@@ -28,27 +52,32 @@ const Categorias: Component = () => {
 
     const handleDelete = async (cat: CategoriesRealTime) => {
         const result = await confirm(
-            "Atención", `¿Seguro de eliminar la categoría ${cat.name}?`, async () => await deleteCategory(cat.id)
-        )
+            "Atención",
+            `¿Seguro de eliminar la categoría ${cat.name}?`,
+            async () => await deleteCategory(cat.id),
+        );
 
         if (result === null) return;
 
         if (result?.error) {
-            if (result?.error.status === 401) {
+            if (result.error.status === 401) {
                 await logout(false);
-                navigate(`/login`);
+                navigate("/login");
+                return;
             }
 
             addToast({
                 message: `Error al eliminar: ${result.error.detail}`,
                 type: "error",
             });
-        } else if (result?.data) {
+            return;
+        }
+
+        if (result?.data) {
             addToast({
-                message: "Rifa eliminada",
+                message: "Categoría eliminada",
                 type: "success",
             });
-
         }
     };
 
@@ -73,23 +102,39 @@ const Categorias: Component = () => {
                 </div>
 
                 <div class={styles.grid}>
-                    <For each={filteredCategories()}>
-                        {(cat) => (
-                            <div class={styles.card}>
+                    <For each={categoryItems()}>
+                        {(item) => (
+                            <div
+                                class={styles.card}
+                                classList={{ [styles.disabledCard]: !item.matches }}
+                            >
                                 <div class={styles.cardContent}>
-                                    <span class={styles.name}>{cat.name}</span>
+                                    <div class={styles.nameRow}>
+                                        <span
+                                            class={styles.swatch}
+                                            style={{
+                                                "background-color": item.category.color ?? "#ffffff",
+                                            }}
+                                        />
+                                        <div class={styles.textGroup}>
+                                            <span class={styles.name}>{item.category.name}</span>
+                                            <span class={styles.meta}>
+                                                {item.category.color ?? "#ffffff"}
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class={styles.actions}>
                                     <button
                                         class={styles.btnEdit}
-                                        onClick={() => handleEdit(cat)}
+                                        onClick={() => handleEdit(item.category)}
                                     >
                                         ✏️
                                     </button>
                                     <button
                                         class={styles.btnDelete}
-                                        onClick={() => handleDelete(cat)}
+                                        onClick={() => handleDelete(item.category)}
                                     >
                                         🗑
                                     </button>
@@ -98,8 +143,9 @@ const Categorias: Component = () => {
                         )}
                     </For>
                 </div>
-                <Show when={filteredCategories().length === 0}>
-                    <p>No se encontraron categorías</p>
+
+                <Show when={currentCategories().length === 0}>
+                    <p class={styles.emptyState}>No se encontraron categorías</p>
                 </Show>
             </div>
 
