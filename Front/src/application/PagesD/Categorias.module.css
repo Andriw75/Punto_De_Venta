@@ -1,0 +1,95 @@
+.container {
+    padding: 1rem;
+    background-color: var(--color-background-page);
+    min-height: 100dvh;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.btnPrimary {
+    background-color: var(--secondary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btnPrimary:hover {
+    background-color: var(--secondary-dark);
+}
+
+
+/* GRID */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+}
+
+/* CARD */
+.card {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 4px 10px var(--shadow);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: 0.2s;
+    border-left: 5px solid var(--primary);
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    background: var(--bg-overlay);
+}
+
+.cardContent {
+    display: flex;
+    align-items: center;
+}
+
+.name {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+/* ACTIONS */
+.actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btnEdit,
+.btnDelete {
+    border: none;
+    padding: 6px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    background: transparent;
+    transition: 0.2s;
+}
+
+.btnEdit:hover {
+    background: rgba(var(--secondary-rgb), 0.15);
+}
+
+.btnDelete:hover {
+    background: rgba(255, 0, 0, 0.15);
+}
+
+.searchInput {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--primary-light);
+    border-radius: 6px;
+    font-size: 1rem;
+    width: 280px;
+}

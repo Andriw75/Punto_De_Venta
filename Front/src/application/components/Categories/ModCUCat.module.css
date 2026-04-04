@@ -1,0 +1,150 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 4px 2px;
+}
+
+.header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+    color: #1f2937;
+}
+
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.label {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.input {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 0.98rem;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #111827;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input::placeholder {
+    color: #9ca3af;
+}
+
+.input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.colorRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    background: #fafafa;
+}
+
+.colorInput {
+    width: 52px;
+    height: 42px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.colorInput::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.colorInput::-webkit-color-swatch {
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+}
+
+.colorInput::-moz-color-swatch {
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+}
+
+.colorInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.colorText {
+    font-size: 0.82rem;
+    color: #6b7280;
+}
+
+.colorValue {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #111827;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+.btnPrimary {
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 9px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.15s ease, transform 0.05s ease;
+}
+
+.btnPrimary:hover {
+    background: #1d4ed8;
+}
+
+.btnPrimary:active {
+    transform: translateY(1px);
+}
+
+.btnCancel {
+    background: #f3f4f6;
+    color: #111827;
+    border: 1px solid #d1d5db;
+    padding: 9px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.15s ease, transform 0.05s ease;
+}
+
+.btnCancel:hover {
+    background: #e5e7eb;
+}
+
+.btnCancel:active {
+    transform: translateY(1px);
+}
