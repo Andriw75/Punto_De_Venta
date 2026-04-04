@@ -96,7 +96,7 @@ export const ModCUCat: Component<ModCUCatProps> = (props) => {
             if (currentColor !== initialColor()) {
                 payload.color = currentColor;
             }
-            if (comentario()){
+            if (comentario()) {
                 payload.comentario = comentario();
             }
 
@@ -163,7 +163,7 @@ export const ModCUCat: Component<ModCUCatProps> = (props) => {
                     </div>
                 </div>
 
-                <div class={styles.field}>
+                {!isCreate() && <div class={styles.field}>
                     <label class={styles.label}>Comentario (Opcional)</label>
                     <textarea
                         value={comentario()}
@@ -172,7 +172,7 @@ export const ModCUCat: Component<ModCUCatProps> = (props) => {
                         maxLength={100}
                         disabled={isLoading()}
                     />
-                </div>
+                </div>}
 
                 <div class={styles.buttons}>
                     <button
