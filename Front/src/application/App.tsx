@@ -5,6 +5,7 @@ import Login from "./Pages/Login/Login";
 import { useAuth } from "./context/auth";
 import { findFirstAllowedRoute } from "./Pages/Dashboard/Sidebar";
 import Categorias from "./PagesD/Categorias";
+import Products from "./PagesD/Products";
 
 const Redirect: Component<{ to: string }> = (props) => {
   const nav = useNavigate();
@@ -56,6 +57,10 @@ const App: Component = () => {
         <Route
           path="/dashboard/categorias"
           component={withProtection(Categorias, "CATEGORIAS")}
+        />
+        <Route
+          path="/dashboard/productos"
+          component={withProtection(Products, "PRODUCTOS")}
         />
 
 

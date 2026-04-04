@@ -33,13 +33,13 @@ export const menu: MenuItem[] = [
   //   requiredPermission: "VENTAS",
   //   icon: { component: Payment16Regular, props: { width: "20px", height: "20px" } },
   // },
-  // {
-  //   label: "Productos",
-  //   key: "PRODUCTOS",
-  //   route: "/dashboard/productos",
-  //   requiredPermission: "PRODUCTOS",
-  //   icon: { component: Money16, props: { width: "30px", height: "30px" } },
-  // },
+  {
+    label: "Productos",
+    key: "PRODUCTOS",
+    route: "/dashboard/productos",
+    requiredPermission: "PRODUCTOS",
+    icon: { component: Money16, props: { width: "30px", height: "30px" } },
+  },
   // {
   //   label: "Ventas",
   //   key: "VENTAS",
