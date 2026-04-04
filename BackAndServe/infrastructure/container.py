@@ -3,6 +3,7 @@ from dependency_injector import containers, providers
 from infrastructure.db import SQLiteDB
 from infrastructure.rep_users import RepUsers
 from infrastructure.rep_categories import RepCategories
+from infrastructure.rep_products import RepProducts
 from infrastructure.rep_auth import JWTManagerImpl,BcryptMnjCrypt
 from utils import resource_path
 
@@ -19,5 +20,9 @@ class Container(containers.DeclarativeContainer):
     by_cript = providers.Singleton(BcryptMnjCrypt)
 
     category_rep = providers.Factory(RepCategories, db=sqlite_db, is_cache=True)
+
+    products_rep = providers.Factory(RepProducts, db=sqlite_db, is_cache=True)
+
+    
 
 

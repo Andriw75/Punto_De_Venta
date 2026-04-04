@@ -1,5 +1,6 @@
 CHANNEL = "categories"
 EVENT = "current_categories"
+PERMISO_USER = "CATEGORIAS"
 
 from fastapi import APIRouter, WebSocket, Depends, HTTPException, status
 from dependency_injector.wiring import inject, Provide
@@ -59,7 +60,7 @@ ws_manager.register_message_handler("subscribe_categories", subscribe_categories
 @categoriesR.post("/", response_model=bool)
 @inject
 async def crear(category: CategoryCreate, 
-                current_user: UserCookie = Depends(permission_required("CATEGORIAS")),
+                current_user: UserCookie = Depends(permission_required(PERMISO_USER)),
                 repo: RepCategories = Depends(Provide[Container.category_rep]),
                 ):
 
@@ -73,7 +74,7 @@ async def crear(category: CategoryCreate,
 async def actualizar(
     category_id: int,
     category: CategoryUpdate,
-    current_user: UserCookie = Depends(permission_required("CATEGORIAS")),
+    current_user: UserCookie = Depends(permission_required(PERMISO_USER)),
     repo: RepCategories = Depends(Provide[Container.category_rep]),
 ):
 
@@ -86,7 +87,7 @@ async def actualizar(
 @inject
 async def eliminar(
     category_id: int,
-    current_user: UserCookie = Depends(permission_required("CATEGORIAS")),
+    current_user: UserCookie = Depends(permission_required(PERMISO_USER)),
     repo: RepCategories = Depends(Provide[Container.category_rep]),
 ):
 

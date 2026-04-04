@@ -64,11 +64,39 @@ CREATE TABLE IF NOT EXISTS audit_log (
     action_type VARCHAR,
     entity_type VARCHAR,
     entity_id VARCHAR,
-    changes TEXT, -- JSON almacenado como texto, incluye data_before y data_after
+    changes TEXT,
     created_at TIMESTAMP
 );
 """
         tables.append(sql)
+
+        sql = """
+CREATE TABLE products (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    barcode VARCHAR UNIQUE,
+    description TEXT,
+    metadata TEXT
+);
+"""
+        tables.append(sql)
+
+        sql = """
+CREATE TABLE product_snapshot (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    product_id INTEGER NOT NULL,
+    name VARCHAR NOT NULL,
+    price DECIMAL NOT NULL,
+    category_id INTEGER,
+    stock INTEGER NOT NULL,
+    valid_from TIMESTAMP NOT NULL,
+    valid_to TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES products(id),
+    FOREIGN KEY (category_id) REFERENCES categories(id)
+);
+"""
+        tables.append(sql)
+
+
 
         for t in tables:
             await self._connection.execute(t)

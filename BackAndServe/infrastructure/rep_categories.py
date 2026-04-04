@@ -95,7 +95,12 @@ class RepCategories(CachedRepository[CategoryResponse]):
 
             before = dict(row)
 
-            update_data = category.model_dump(exclude_unset=True)
+            comentario = category.comentario
+
+            update_data = category.model_dump(
+                exclude_unset=True,
+                exclude={"comentario"}
+            )
 
             if not update_data:
                 return True
@@ -130,7 +135,7 @@ class RepCategories(CachedRepository[CategoryResponse]):
                 category_id,
                 before,
                 after,
-                ""
+                comentario or ""
             )
 
         if self._cache:

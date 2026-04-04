@@ -48,8 +48,11 @@ async def websocket_endpoint(websocket: WebSocket):
 from application.authR import authR
 app.include_router(authR)
 
-from application.categoriesR import categoriesR
+from application.categoriesRW import categoriesR
 app.include_router(categoriesR)
+
+from application.productsRW import productsRW
+app.include_router(productsRW)
 
 #####################################################
 import sys
