@@ -11,6 +11,7 @@ import styles from "./ModCUCat.module.css";
 import { addToast } from "../../common/UI/Toast/toastStore";
 import { useNavigate } from "@solidjs/router";
 import { useAuth } from "../../context/auth";
+import LoadingLoop from "../../common/IconSvg/LoadingLoop";
 
 interface ModCUCatProps {
     onClose: () => void;
@@ -23,6 +24,7 @@ export const ModCUCat: Component<ModCUCatProps> = (props) => {
 
     const [name, setName] = createSignal("");
     const [color, setColor] = createSignal("#ffffff");
+    const [isLoading, setIsLoading] = createSignal(false);
 
     const [initialName, setInitialName] = createSignal("");
     const [initialColor, setInitialColor] = createSignal("#ffffff");
@@ -52,16 +54,56 @@ export const ModCUCat: Component<ModCUCatProps> = (props) => {
     });
 
     const handleSave = async () => {
+        if (isLoading()) return;
+
+        setIsLoading(true);
+
         const currentName = name().trim();
         const currentColor = color();
 
-        if (isCreate()) {
-            const data: CategoryCreate = {
-                name: currentName,
-                color: currentColor,
-            };
+        try {
+            if (isCreate()) {
+                const data: CategoryCreate = {
+                    name: currentName,
+                    color: currentColor,
+                };
 
-            const res = await createCategory(data);
+                const res = await createCategory(data);
+
+                if (res.error) {
+                    if (res.error.status === 401) {
+                        await logout(false);
+                        navigate("/login");
+                        return;
+                    }
+
+                    addToast({ message: res.error.detail, type: "error" });
+                    return;
+                }
+
+                addToast({ message: "Categoría creada correctamente", type: "success" });
+                props.onClose();
+                return;
+            }
+
+            const payload: CategoryUpdate = {};
+
+            if (currentName !== initialName()) {
+                payload.name = currentName;
+            }
+
+            if (currentColor !== initialColor()) {
+                payload.color = currentColor;
+            }
+
+            const data = cleanUndefined(payload);
+
+            if (Object.keys(data).length === 0) {
+                props.onClose();
+                return;
+            }
+
+            const res = await updateCategory(props.category!.id, data);
 
             if (res.error) {
                 if (res.error.status === 401) {
@@ -73,53 +115,22 @@ export const ModCUCat: Component<ModCUCatProps> = (props) => {
                 addToast({ message: res.error.detail, type: "error" });
                 return;
             }
-            addToast({ message: "Categoría create correctamente", type: "success" });
+
+            addToast({ message: "Categoría actualizada correctamente", type: "success" });
             props.onClose();
-            return;
+
+        } finally {
+            setIsLoading(false);
         }
-
-        const payload: CategoryUpdate = {};
-
-        if (currentName !== initialName()) {
-            payload.name = currentName;
-        }
-
-        if (currentColor !== initialColor()) {
-            payload.color = currentColor;
-        }
-
-        const data = cleanUndefined(payload);
-
-        if (Object.keys(data).length === 0) {
-            props.onClose();
-            return;
-        }
-
-        const res = await updateCategory(props.category!.id, data);
-
-        if (res.error) {
-            if (res.error.status === 401) {
-                await logout(false);
-                navigate("/login");
-                return;
-            }
-
-            addToast({ message: res.error.detail, type: "error" });
-            return;
-        }
-
-        addToast({ message: "Categoría actualizada correctamente", type: "success" });
-        props.onClose();
     };
 
     return (
         <ModalCommon onClose={props.onClose} width="460px">
-            <div class={styles.container}>
+            <div class={styles.container} classList={{ [styles.loading]: isLoading() }}>
                 <div class={styles.header}>
                     <h3 class={styles.title}>
                         {isCreate() ? "Nueva categoría" : "Editar categoría"}
                     </h3>
-
                 </div>
 
                 <div class={styles.field}>
@@ -130,6 +141,7 @@ export const ModCUCat: Component<ModCUCatProps> = (props) => {
                         onInput={(e) => setName(e.currentTarget.value)}
                         class={styles.input}
                         maxLength={100}
+                        disabled={isLoading()}
                     />
                 </div>
 
@@ -141,21 +153,34 @@ export const ModCUCat: Component<ModCUCatProps> = (props) => {
                             value={color()}
                             onInput={(e) => setColor(e.currentTarget.value)}
                             class={styles.colorInput}
-                            aria-label="Seleccionar color"
+                            disabled={isLoading()}
                         />
-                        <div class={styles.colorInfo}>
-                            <span class={styles.colorText}>Valor actual</span>
-                            <span class={styles.colorValue}>{color()}</span>
-                        </div>
+                        <span class={styles.colorValue}>{color()}</span>
                     </div>
                 </div>
 
                 <div class={styles.buttons}>
-                    <button class={styles.btnCancel} onClick={props.onClose}>
+                    <button
+                        class={styles.btnCancel}
+                        onClick={props.onClose}
+                        disabled={isLoading()}
+                    >
                         Cancelar
                     </button>
-                    <button class={styles.btnPrimary} onClick={handleSave}>
-                        Guardar
+
+                    <button
+                        class={styles.btnPrimary}
+                        onClick={handleSave}
+                        disabled={isLoading()}
+                    >
+                        {isLoading() ? (
+                            <span class={styles.loadingContent}>
+                                <LoadingLoop />
+                                Guardando...
+                            </span>
+                        ) : (
+                            "Guardar"
+                        )}
                     </button>
                 </div>
             </div>

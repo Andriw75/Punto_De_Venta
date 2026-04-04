@@ -18,7 +18,6 @@
     color: #1f2937;
 }
 
-
 .field {
     display: flex;
     flex-direction: column;
@@ -63,9 +62,8 @@
 }
 
 .colorInput {
-    width: 52px;
-    height: 42px;
-    padding: 0;
+    width: 50px;
+    height: 40px;
     border: none;
     background: transparent;
     cursor: pointer;
@@ -85,23 +83,10 @@
     border-radius: 8px;
 }
 
-.colorInfo {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    min-width: 0;
-}
-
-.colorText {
-    font-size: 0.82rem;
-    color: #6b7280;
-}
-
 .colorValue {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #111827;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-family: monospace;
+    font-size: 0.9rem;
+    color: #555;
 }
 
 .buttons {
@@ -147,4 +132,15 @@
 
 .btnCancel:active {
     transform: translateY(1px);
+}
+
+.loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.loadingContent {
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
