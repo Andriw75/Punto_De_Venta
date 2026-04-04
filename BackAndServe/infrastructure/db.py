@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS audit_log (
         tables.append(sql)
 
         sql = """
-CREATE TABLE products (
+CREATE TABLE IF NOT EXISTS products (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     barcode VARCHAR UNIQUE,
     description TEXT,
@@ -81,7 +81,7 @@ CREATE TABLE products (
         tables.append(sql)
 
         sql = """
-CREATE TABLE product_snapshot (
+CREATE TABLE IF NOT EXISTS product_snapshot (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     product_id INTEGER NOT NULL,
     name VARCHAR NOT NULL,
