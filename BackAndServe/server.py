@@ -29,6 +29,8 @@ app.add_middleware(
 )
 
 from application.mnj_ws import WebSocketManager
+from fastapi.websockets import WebSocketDisconnect
+
 manager = WebSocketManager()
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
@@ -38,6 +40,8 @@ async def websocket_endpoint(websocket: WebSocket):
         while True:
             data = await websocket.receive_json()
             await manager.handle_message(connection_id, data)
+    except WebSocketDisconnect:
+        pass
     except Exception as e:
         print("---WS---")
         print(e)

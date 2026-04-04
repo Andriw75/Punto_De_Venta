@@ -10,7 +10,7 @@ from dependency_injector.wiring import inject, Provide
 
 from fastapi import (
     APIRouter,  Depends, Header,
-    Request, Response, HTTPException, status
+    Request, Response, HTTPException, status, WebSocket
 )
 from fastapi.security import OAuth2PasswordRequestForm
 
@@ -48,6 +48,30 @@ async def get_current_user(
     except Exception:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Token inválido o expirado")
+    
+@inject
+async def validate_user_ws(
+    ws: WebSocket,
+    jwt_impl: JWTManagerImpl = Depends(Provide[Container.jwt_impl]),
+    ) -> UserCookie | None:
+    """
+    Valida un usuario a través de WebSocket usando la cookie JWT.
+
+    Args:
+        ws (WebSocket): Conexión WebSocket.
+
+    Returns:
+        UserCookie | None: Usuario autenticado o None si inválido.
+    """
+    token = ws.cookies.get(KEY_TOKEN)
+    if not token:
+        return None
+    try:
+        payload = jwt_impl.verify_token(token)
+        user = UserCookie(**payload)
+        return user
+    except Exception:
+        return None
 
 def _set_access_cookie(response: Response, token: str):
     response.set_cookie(

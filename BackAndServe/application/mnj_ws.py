@@ -99,6 +99,11 @@ class WebSocketManager:
                 self.channels[channel].discard(connection_id)
                 if not self.channels[channel]:
                     del self.channels[channel]
+            
+            try:
+                await ws.close()
+            except Exception:
+                pass
 
         self._log("info", f"WebSocket desconectado: {connection_id}")
 

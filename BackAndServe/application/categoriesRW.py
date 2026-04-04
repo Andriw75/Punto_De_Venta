@@ -13,7 +13,7 @@ from domain.categories import (
 
 from infrastructure.container import Container
 from infrastructure.rep_categories import RepCategories
-from application.authR import permission_required
+from application.authR import permission_required,validate_user_ws
 from application.mnj_ws import WebSocketManager
 
 
@@ -43,11 +43,14 @@ async def subscribe_categories(
     data,
     repo: RepCategories = Depends(Provide[Container.category_rep]),
     ):
+    cookies = await validate_user_ws(ws)
+    
+    if (not cookies) or (PERMISO_USER not in cookies.permissions):
+        await ws_manager.disconnect(connection_id)
+        return
 
-    # suscribirse al canal
     await ws_manager.subscribe(connection_id, CHANNEL)
 
-    # enviar datos iniciales SOLO a este websocket
     categories = await repo.get()
 
     await ws.send_json({
