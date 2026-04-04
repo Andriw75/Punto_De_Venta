@@ -1,7 +1,6 @@
-import { createEffect } from "solid-js";
+import { createEffect, createSignal } from "solid-js";
 import { useAuth } from "./auth";
 import { useWebSocket } from "./web_socket";
-import { createSignal } from "solid-js";
 
 export const RealtimeBridge = () => {
     const auth = useAuth();
@@ -10,28 +9,32 @@ export const RealtimeBridge = () => {
     const [subscribedProducts, setSubscribedProducts] = createSignal(false);
     const [subscribedCategories, setSubscribedCategories] = createSignal(false);
 
-    createEffect(() => {
+    createEffect(async () => {
         const user = auth.user();
         const connected = ws.isConnected();
 
-        if (!user || !connected) return;
+        if (!user) {
+            setSubscribedProducts(false);
+            setSubscribedCategories(false);
+            return;
+        }
+
+        if (!connected) {
+            await ws.connect();
+            return;
+        }
 
         const canProducts = user.permissions.includes("PRODUCTOS");
         const canCategories = user.permissions.includes("CATEGORIAS");
 
         if (canProducts && !subscribedProducts()) {
-            void ws.sendMessage({ event: "subscribe_products" });
             setSubscribedProducts(true);
+            void ws.sendMessage({ event: "subscribe_products" });
         }
 
         if (canCategories && !subscribedCategories()) {
-            void ws.sendMessage({ event: "subscribe_categories" });
             setSubscribedCategories(true);
-        }
-
-        if (!user) {
-            setSubscribedProducts(false);
-            setSubscribedCategories(false);
+            void ws.sendMessage({ event: "subscribe_categories" });
         }
     });
 

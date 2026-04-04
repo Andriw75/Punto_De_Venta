@@ -2,7 +2,6 @@ import {
   createContext,
   useContext,
   createSignal,
-  onMount,
   onCleanup,
   type JSXElement,
 } from "solid-js";
@@ -14,6 +13,7 @@ interface WebSocketContextType {
   socket: Accessor<WebSocket | null>;
   isConnected: Accessor<boolean>;
   connect: () => Promise<WebSocket>;
+  reconnect: () => Promise<void>;
   disconnect: () => void;
   sendMessage: (msg: unknown) => Promise<void>;
   currentProducts: Accessor<ProductoRealTime[]>;
@@ -101,6 +101,11 @@ export const WebSocketProvider = (props: { children: JSXElement }) => {
     return connectingPromise;
   };
 
+  const reconnect = async () => {
+    disconnect();
+    await connect();
+  };
+
   const sendMessage = async (msg: unknown) => {
     const payload = typeof msg === "string" ? msg : JSON.stringify(msg);
 
@@ -123,10 +128,6 @@ export const WebSocketProvider = (props: { children: JSXElement }) => {
     }
   };
 
-  onMount(() => {
-    void connect();
-  });
-
   onCleanup(() => {
     disconnect();
   });
@@ -137,6 +138,7 @@ export const WebSocketProvider = (props: { children: JSXElement }) => {
         socket,
         isConnected,
         connect,
+        reconnect,
         disconnect,
         sendMessage,
         currentProducts,
