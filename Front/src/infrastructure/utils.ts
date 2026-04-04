@@ -56,3 +56,16 @@ export function buildQuery(
 
   return search.toString();
 }
+
+export function cleanUndefined<T extends Record<string, any>>(obj: T): Partial<T> {
+  const result: Partial<T> = {};
+
+  for (const key in obj) {
+    const value = obj[key];
+    if (value !== undefined) {
+      result[key] = value;
+    }
+  }
+
+  return result;
+}

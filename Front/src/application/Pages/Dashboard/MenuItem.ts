@@ -19,13 +19,13 @@ export type MenuItem = {
 };
 
 export const menu: MenuItem[] = [
-  // {
-  //   label: "Categorias",
-  //   key: "CATEGORIAS",
-  //   route: "/dashboard/categorias",
-  //   requiredPermission: "CATEGORIAS",
-  //   icon: { component: Labels, props: { width: "20px", height: "20px" } },
-  // },
+  {
+    label: "Categorias",
+    key: "CATEGORIAS",
+    route: "/dashboard/categorias",
+    requiredPermission: "CATEGORIAS",
+    icon: { component: Labels, props: { width: "20px", height: "20px" } },
+  },
   // {
   //   label: "Metodos de pago",
   //   key: "PAYMENT_METHODS",
