@@ -77,12 +77,11 @@ class RepCategories(CachedRepository[CategoryResponse]):
             await self.refresh_cache()
 
     async def update(self, actor: str, category_id: int, category: CategoryUpdate):
-
         async with self.db.transaction() as conn:
 
             cursor = await conn.execute(
                 """
-                SELECT name,color
+                SELECT name, color
                 FROM categories
                 WHERE id = ?
                 """,
@@ -92,23 +91,21 @@ class RepCategories(CachedRepository[CategoryResponse]):
             row = await cursor.fetchone()
 
             if row is None:
-                raise HTTPException(404,"Categoría no encontrada")
+                raise HTTPException(404, "Categoría no encontrada")
 
             before = dict(row)
+
+            update_data = category.model_dump(exclude_unset=True)
+
+            if not update_data:
+                return True
 
             fields = []
             values = []
 
-            if category.name is not None:
-                fields.append("name = ?")
-                values.append(category.name)
-            
-            if category.color is not None:
-                fields.append("color = ?")
-                values.append(category.color)
-
-            if not fields:
-                return True
+            for field, value in update_data.items():
+                fields.append(f"{field} = ?")
+                values.append(value)
 
             values.append(category_id)
 
@@ -121,8 +118,8 @@ class RepCategories(CachedRepository[CategoryResponse]):
             await conn.execute(query, values)
 
             after = {
-                "name": category.name if category.name else before["name"],
-                "color": category.color if category.color else before["color"],
+                "name": update_data.get("name", before["name"]),
+                "color": update_data.get("color", before["color"]),
             }
 
             await SQLiteDB.insert_audit(
@@ -135,7 +132,6 @@ class RepCategories(CachedRepository[CategoryResponse]):
                 after,
                 ""
             )
-
 
         if self._cache:
             await self.refresh_cache()
