@@ -8,6 +8,7 @@ import { confirm } from "../common/UI/Confirm/confirmStore";
 import { useNavigate } from "@solidjs/router";
 import { useAuth } from "../context/auth";
 import { addToast } from "../common/UI/Toast/toastStore";
+import { normalize } from "./utils";
 
 
 const Categorias: Component = () => {
@@ -20,7 +21,6 @@ const Categorias: Component = () => {
         CategoriesRealTime | null | undefined
     >(undefined);
 
-    const normalize = (value: string) => value.trim().toLowerCase();
 
     const matchesSearch = (cat: CategoriesRealTime, query: string) => {
         if (!query) return true;
