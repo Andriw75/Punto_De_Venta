@@ -12,4 +12,5 @@ export interface CategoryCreate {
 export interface CategoryUpdate {
     name?: string | null;
     color?: string | null;
+    comentario?: string | null;
 }

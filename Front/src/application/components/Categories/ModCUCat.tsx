@@ -24,6 +24,7 @@ export const ModCUCat: Component<ModCUCatProps> = (props) => {
 
     const [name, setName] = createSignal("");
     const [color, setColor] = createSignal("#ffffff");
+    const [comentario, setComentario] = createSignal("");
     const [isLoading, setIsLoading] = createSignal(false);
 
     const [initialName, setInitialName] = createSignal("");
@@ -95,6 +96,9 @@ export const ModCUCat: Component<ModCUCatProps> = (props) => {
             if (currentColor !== initialColor()) {
                 payload.color = currentColor;
             }
+            if (comentario()){
+                payload.comentario = comentario();
+            }
 
             const data = cleanUndefined(payload);
 
@@ -157,6 +161,17 @@ export const ModCUCat: Component<ModCUCatProps> = (props) => {
                         />
                         <span class={styles.colorValue}>{color()}</span>
                     </div>
+                </div>
+
+                <div class={styles.field}>
+                    <label class={styles.label}>Comentario (Opcional)</label>
+                    <textarea
+                        value={comentario()}
+                        onInput={(e) => setComentario(e.currentTarget.value)}
+                        class={styles.input}
+                        maxLength={100}
+                        disabled={isLoading()}
+                    />
                 </div>
 
                 <div class={styles.buttons}>
