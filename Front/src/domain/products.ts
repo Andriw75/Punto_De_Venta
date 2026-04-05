@@ -1,28 +1,29 @@
 export type ProductoBase = {
     name: string;
-    description?: string;
-    metadata?: Record<string, any>;
+    description?: string | null;
+    metadata?: Record<string, any> | null;
     stock: number;
-    barcode?: string;
+    barcode?: string | null;
 };
 
 export type ProductoRealTime = ProductoBase & {
     id: number;
-    category_id?: number;
+    category_id?: number | null;
     price: number;
 };
 
 export type ProductoCreate = ProductoBase & {
-    category_id?: number;
+    category_id?: number | null;
     price: number;
 };
 
 export type ProductoUpdate = {
-    name?: string;
-    description?: string;
-    metadata?: Record<string, any>;
-    stock?: number;
-    barcode?: string;
-    price?: number;
-    category_id?: number;
+    name?: string | null;
+    description?: string | null;
+    metadata?: Record<string, any> | null;
+    stock?: number | null;
+    barcode?: string | null;
+    price?: number | null;
+    category_id?: number | null;
+    comentario?: string | null;
 };

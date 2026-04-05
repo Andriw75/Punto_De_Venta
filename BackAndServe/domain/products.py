@@ -21,7 +21,7 @@ class ProductUpdate(BaseModel):
     price: Optional[float] = Field(None, gt=0)
     category_id: Optional[int] = None
 
-    comentario: Optional[str]
+    comentario: Optional[str] = Field(None)
 
 class ProductRealTime(ProductBase):
     id: int

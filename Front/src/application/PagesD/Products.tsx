@@ -1,7 +1,5 @@
 import { type Component, createSignal, For, Show } from "solid-js";
 import { useWebSocket } from "../context/web_socket";
-import { useNavigate } from "@solidjs/router";
-import { useAuth } from "../context/auth";
 import stylesC from "./Categorias.module.css";
 import styles from "./Products.module.css";
 import type { ProductoRealTime } from "../../domain/products";
@@ -9,8 +7,6 @@ import { normalize } from "./utils";
 import { ModCUProd } from "../components/Products/ModCUProd";
 
 const Products: Component = () => {
-    const navigate = useNavigate();
-    const { logout } = useAuth();
     const { currentCategories, currentProducts } = useWebSocket();
 
     const [search, setSearch] = createSignal("");
@@ -20,8 +16,7 @@ const Products: Component = () => {
     >(undefined);
 
     /************************************************************************************/
-    const handleDelete = async (prod: ProductoRealTime) => {
-        console.table(prod);
+    const handleDelete = async (_prod: ProductoRealTime) => {
         // const result = await confirm(
         //     "Atención",
         //     `¿Seguro de eliminar la categoría ${cat.name}?`,
@@ -83,7 +78,7 @@ const Products: Component = () => {
             });
     };
 
-    const getCategoryName = (categoryId?: number) => {
+    const getCategoryName = (categoryId?: number | null) => {
         if (categoryId == null) return "Sin Categoría";
 
         const category = currentCategories().find((cat) => cat.id === categoryId);
@@ -169,6 +164,7 @@ const Products: Component = () => {
 
             <Show when={selectProduct() !== undefined}>
                 <ModCUProd
+                    product={selectProduct()}
                     onClose={() => setSelectProduct(undefined)}
                 />
             </Show>
