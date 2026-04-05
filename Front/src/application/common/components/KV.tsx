@@ -1,4 +1,4 @@
-import { For, Show, createEffect, createMemo, createSignal, type Component } from "solid-js";
+import { Index, Show, createEffect, createMemo, createSignal, type Component } from "solid-js";
 import styles from "./KV.module.css";
 
 export type KVItem = {
@@ -44,6 +44,8 @@ const KV: Component<KVProps> = (props) => {
   const [draggingId, setDraggingId] = createSignal<string | null>(null);
   const [dragOverId, setDragOverId] = createSignal<string | null>(null);
 
+  const showHead = createMemo(() => Boolean(props.keyLabel || props.valueLabel));
+
   const rowErrors = createMemo(() =>
     props.items.map((item, index) =>
       props.validate?.(item, index, props.items) ?? null,
@@ -58,12 +60,12 @@ const KV: Component<KVProps> = (props) => {
     props.onValidityChange?.(isValid());
   });
 
-  const updateItem = (id: string, field: "key" | "value", value: string) => {
-    props.onChange(
-      props.items.map((item) =>
-        item.id === id ? { ...item, [field]: value } : item,
-      ),
-    );
+  const updateItem = (index: number, field: "key" | "value", value: string) => {
+    const next = [...props.items];
+    const current = next[index];
+    if (!current) return;
+    next[index] = { ...current, [field]: value };
+    props.onChange(next);
   };
 
   const createRowId = () =>
@@ -102,30 +104,33 @@ const KV: Component<KVProps> = (props) => {
         ...(props.classList ?? {}),
       }}
     >
-      <div class={styles.headRow}>
-        <span class={styles.label}>{props.keyLabel ?? "Clave"}</span>
-        <span class={styles.label}>{props.valueLabel ?? "Valor"}</span>
-      </div>
+      <Show when={showHead()}>
+        <div class={styles.headRow}>
+          <span class={styles.label}>{props.keyLabel}</span>
+          <span class={styles.label}>{props.valueLabel}</span>
+        </div>
+      </Show>
 
       <Show
         when={props.items.length > 0}
         fallback={<div class={styles.empty}>{props.emptyText ?? "Sin metadata"}</div>}
       >
         <div class={styles.list}>
-          <For each={props.items}>
+          <Index each={props.items}>
             {(item, index) => {
-              const errors = () => rowErrors()[index()];
+              const row = () => item();
+              const errors = () => rowErrors()[index];
               return (
                 <div
                   class={styles.item}
                   classList={{
-                    [styles.dragOver]: dragOverId() === item.id,
+                    [styles.dragOver]: dragOverId() === row().id,
                     [styles.errorRow]: Boolean(errors()?.key || errors()?.value),
                   }}
                   draggable={!props.disabled}
                   onDragStart={() => {
                     if (props.disabled) return;
-                    setDraggingId(item.id);
+                    setDraggingId(row().id);
                   }}
                   onDragEnd={() => {
                     setDraggingId(null);
@@ -134,15 +139,15 @@ const KV: Component<KVProps> = (props) => {
                   onDragOver={(event) => {
                     if (props.disabled) return;
                     event.preventDefault();
-                    setDragOverId(item.id);
+                    setDragOverId(row().id);
                   }}
                   onDragLeave={() => {
-                    if (dragOverId() === item.id) setDragOverId(null);
+                    if (dragOverId() === row().id) setDragOverId(null);
                   }}
                   onDrop={(event) => {
                     event.preventDefault();
                     if (props.disabled) return;
-                    handleDrop(item.id);
+                    handleDrop(row().id);
                   }}
                 >
                   <button
@@ -157,11 +162,11 @@ const KV: Component<KVProps> = (props) => {
                   <div class={styles.fieldWrap}>
                     <input
                       class={styles.input}
-                      value={item.key}
+                      value={row().key}
                       onInput={(event) =>
-                        updateItem(item.id, "key", event.currentTarget.value)
+                        updateItem(index, "key", event.currentTarget.value)
                       }
-                      placeholder="ej: marca"
+                      placeholder="ej: tipo"
                       disabled={props.disabled}
                     />
                     <Show when={errors()?.key}>
@@ -172,11 +177,11 @@ const KV: Component<KVProps> = (props) => {
                   <div class={styles.fieldWrap}>
                     <input
                       class={styles.input}
-                      value={item.value}
+                      value={row().value}
                       onInput={(event) =>
-                        updateItem(item.id, "value", event.currentTarget.value)
+                        updateItem(index, "value", event.currentTarget.value)
                       }
-                      placeholder="ej: ACME"
+                      placeholder="ej: premium"
                       disabled={props.disabled}
                     />
                     <Show when={errors()?.value}>
@@ -187,7 +192,7 @@ const KV: Component<KVProps> = (props) => {
                   <button
                     type="button"
                     class={styles.removeButton}
-                    onClick={() => removeItem(item.id)}
+                    onClick={() => removeItem(row().id)}
                     disabled={props.disabled}
                   >
                     Eliminar
@@ -195,7 +200,7 @@ const KV: Component<KVProps> = (props) => {
                 </div>
               );
             }}
-          </For>
+          </Index>
         </div>
       </Show>
 

@@ -458,7 +458,7 @@ export const ModCUProd: Component<ModCUProdProps> = (props) => {
                 </div>
 
                 <div class={styles.field}>
-                    <label class={styles.label}>Metadata (clave/valor)</label>
+                    <label class={styles.label}>Datos adicionales para cliente</label>
                     <KV
                         items={metadataItems()}
                         onChange={setMetadataItems}
@@ -539,13 +539,13 @@ export const ModCUProd: Component<ModCUProdProps> = (props) => {
 
                         <button
                             class={styles.btnPreview}
-                            classList={{ [styles.btnPreviewActive]: hasUpdateChanges() }}
-                            disabled={isLoading() || !hasUpdateChanges()}
+                            classList={{ [styles.btnPreviewActive]: hasUpdateChanges() || previewingOriginal() }}
+                            disabled={isLoading() || (!hasUpdateChanges() && !previewingOriginal())}
                             onMouseEnter={previewOriginalOnHover}
                             onMouseLeave={restoreEditedOnLeave}
                             onClick={resetToInitial}
                         >
-                            {previewingOriginal() ? "Aplicar cambios" : "Ver cambios"}
+                            {previewingOriginal() ? "Restaurar Originales" : "Ver cambios"}
                         </button>
 
                         <button

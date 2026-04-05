@@ -276,13 +276,13 @@ export const ModCUCat: Component<ModCUCatProps> = (props) => {
 
                         <button
                             class={styles.btnPreview}
-                            classList={{ [styles.btnPreviewActive]: hasUpdateChanges() }}
-                            disabled={isLoading() || !hasUpdateChanges()}
+                            classList={{ [styles.btnPreviewActive]: hasUpdateChanges() || previewingOriginal() }}
+                            disabled={isLoading() || (!hasUpdateChanges() && !previewingOriginal())}
                             onMouseEnter={previewOriginalOnHover}
                             onMouseLeave={restoreEditedOnLeave}
                             onClick={resetToInitial}
                         >
-                            {previewingOriginal() ? "Aplicar cambios" : "Ver cambios"}
+                            {previewingOriginal() ? "Restaurar Originales" : "Ver cambios"}
                         </button>
 
                         <button
