@@ -58,6 +58,9 @@ app.include_router(categoriesR)
 from application.productsRW import productsRW
 app.include_router(productsRW)
 
+from application.personsR import personsR
+app.include_router(personsR)
+
 #####################################################
 import sys
 import os
