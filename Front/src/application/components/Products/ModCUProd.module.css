@@ -15,7 +15,7 @@
     font-size: 1.25rem;
     font-weight: 700;
     margin: 0;
-    color: #1f2937;
+    color: var(--primary);
 }
 
 .row {
@@ -33,7 +33,7 @@
 .label {
     font-size: 0.92rem;
     font-weight: 600;
-    color: #374151;
+    color: var(--primary-dark);
 }
 
 .input,
@@ -44,15 +44,26 @@
     border: 1px solid #d1d5db;
     border-radius: 10px;
     background: #ffffff;
-    color: #111827;
+    color: var(--primary-dark);
     outline: none;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .input:focus,
 .textarea:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 3px rgba(var(--secondary-rgb), 0.16);
+}
+
+.changedField {
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 2px rgba(var(--secondary-rgb), 0.12);
+}
+
+.changedBlock {
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 2px rgba(var(--secondary-rgb), 0.12);
+    border-radius: 12px;
 }
 
 .textarea {
@@ -67,8 +78,24 @@
     margin-top: 4px;
 }
 
+.buttonsUpdate {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.buttonsUpdate .btnCancel {
+    justify-self: start;
+}
+
+.buttonsUpdate .btnPrimary {
+    justify-self: end;
+}
+
 .btnPrimary {
-    background: #2563eb;
+    background: var(--secondary);
     color: white;
     border: none;
     padding: 9px 16px;
@@ -79,7 +106,7 @@
 }
 
 .btnPrimary:hover {
-    background: #1d4ed8;
+    background: var(--secondary-dark);
 }
 
 .btnPrimary:active {
@@ -87,9 +114,9 @@
 }
 
 .btnCancel {
-    background: #f3f4f6;
-    color: #111827;
-    border: 1px solid #d1d5db;
+    background: rgba(30, 58, 95, 0.08);
+    color: var(--primary);
+    border: 1px solid rgba(30, 58, 95, 0.25);
     padding: 9px 16px;
     border-radius: 10px;
     cursor: pointer;
@@ -98,11 +125,38 @@
 }
 
 .btnCancel:hover {
-    background: #e5e7eb;
+    background: rgba(30, 58, 95, 0.14);
 }
 
 .btnCancel:active {
     transform: translateY(1px);
+}
+
+.btnPreview {
+    background: rgba(30, 58, 95, 0.1);
+    color: var(--primary-dark);
+    border: 1px solid rgba(30, 58, 95, 0.28);
+    padding: 9px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+    justify-self: center;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.btnPreview:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btnPreviewActive {
+    background: rgba(var(--secondary-rgb), 0.14);
+    border-color: rgba(var(--secondary-rgb), 0.42);
+    color: var(--secondary-dark);
+}
+
+.btnPreviewActive:hover {
+    background: rgba(var(--secondary-rgb), 0.2);
 }
 
 .loading {
@@ -118,6 +172,10 @@
 
 @media (max-width: 640px) {
     .row {
+        grid-template-columns: 1fr;
+    }
+
+    .buttonsUpdate {
         grid-template-columns: 1fr;
     }
 }

@@ -8,6 +8,7 @@ import LoadingLoop from "../../common/IconSvg/LoadingLoop";
 import type { ProductoCreate, ProductoRealTime, ProductoUpdate } from "../../../domain/products";
 import { createProduct, updateProduct } from "../../../infrastructure/products";
 import { cleanUndefined } from "../../../infrastructure/utils";
+import KV, { type KVItem, type KVValidationErrors } from "../../common/components/KV";
 import styles from "./ModCUProd.module.css";
 
 
@@ -15,6 +16,17 @@ interface ModCUProdProps {
     onClose: () => void;
     product?: ProductoRealTime | null;
 }
+
+type ProductEditSnapshot = {
+    name: string;
+    description: string;
+    barcode: string;
+    priceText: string;
+    stockText: string;
+    categoryIdText: string;
+    comentario: string;
+    metadataItems: KVItem[];
+};
 
 export const ModCUProd: Component<ModCUProdProps> = (props) => {
     const navigate = useNavigate();
@@ -28,7 +40,11 @@ export const ModCUProd: Component<ModCUProdProps> = (props) => {
     const [stockText, setStockText] = createSignal("0");
     const [categoryIdText, setCategoryIdText] = createSignal("");
     const [comentario, setComentario] = createSignal("");
+    const [metadataItems, setMetadataItems] = createSignal<KVItem[]>([]);
+    const [metadataValid, setMetadataValid] = createSignal(true);
     const [isLoading, setIsLoading] = createSignal(false);
+    const [previewingOriginal, setPreviewingOriginal] = createSignal(false);
+    const [hoverSnapshot, setHoverSnapshot] = createSignal<ProductEditSnapshot | null>(null);
 
     const [initialName, setInitialName] = createSignal("");
     const [initialDescription, setInitialDescription] = createSignal<string | null>(null);
@@ -36,8 +52,136 @@ export const ModCUProd: Component<ModCUProdProps> = (props) => {
     const [initialPrice, setInitialPrice] = createSignal(0);
     const [initialStock, setInitialStock] = createSignal(0);
     const [initialCategoryId, setInitialCategoryId] = createSignal<number | null>(null);
+    const [initialMetadataItems, setInitialMetadataItems] = createSignal<KVItem[]>([]);
 
     const isCreate = createMemo(() => props.product == null);
+
+    const copyKVItems = (items: KVItem[]) => items.map((item) => ({ ...item }));
+    const createRowId = () =>
+        typeof crypto !== "undefined" && "randomUUID" in crypto
+            ? crypto.randomUUID()
+            : `${Date.now()}-${Math.random()}`;
+
+    const metadataToItems = (metadata?: Record<string, any> | null): KVItem[] => {
+        if (!metadata) return [];
+
+        return Object.entries(metadata).map(([key, value]) => ({
+            id: createRowId(),
+            key,
+            value: value == null ? "" : String(value),
+        }));
+    };
+
+    const metadataItemsToObject = (items: KVItem[]): Record<string, string> | null => {
+        const result: Record<string, string> = {};
+
+        for (const item of items) {
+            const key = item.key.trim();
+            if (!key) continue;
+            result[key] = item.value;
+        }
+
+        return Object.keys(result).length > 0 ? result : null;
+    };
+
+    const metadataSignature = (metadata: Record<string, any> | null | undefined) => {
+        if (!metadata) return "";
+
+        const normalized: Record<string, string> = {};
+        for (const key of Object.keys(metadata).sort()) {
+            normalized[key] = metadata[key] == null ? "" : String(metadata[key]);
+        }
+        return JSON.stringify(normalized);
+    };
+
+    const metadataChanged = createMemo(() => {
+        if (isCreate()) return false;
+        return (
+            metadataSignature(metadataItemsToObject(metadataItems())) !==
+            metadataSignature(metadataItemsToObject(initialMetadataItems()))
+        );
+    });
+
+    const hasUpdateChanges = createMemo(() => {
+        if (isCreate()) return false;
+
+        const descriptionValue = normalizeNullableText(description());
+        const barcodeValue = normalizeNullableText(barcode());
+        const parsedCategory = parseCategory(categoryIdText());
+        const parsedStock = parseStock(stockText());
+        const parsedPrice = parsePrice(priceText());
+
+        if (parsedCategory === undefined || parsedStock === undefined || parsedPrice === undefined) {
+            return true;
+        }
+
+        return (
+            name().trim() !== initialName() ||
+            descriptionValue !== initialDescription() ||
+            barcodeValue !== initialBarcode() ||
+            parsedPrice !== initialPrice() ||
+            parsedStock !== initialStock() ||
+            parsedCategory !== initialCategoryId() ||
+            comentario().trim().length > 0 ||
+            metadataChanged()
+        );
+    });
+
+    const applyInitialValues = () => {
+        setName(initialName());
+        setDescription(initialDescription() ?? "");
+        setBarcode(initialBarcode() ?? "");
+        setPriceText(String(initialPrice()));
+        setStockText(String(initialStock()));
+        setCategoryIdText(initialCategoryId() == null ? "" : String(initialCategoryId()));
+        setComentario("");
+        setMetadataItems(copyKVItems(initialMetadataItems()));
+    };
+
+    const resetToInitial = () => {
+        applyInitialValues();
+        setPreviewingOriginal(false);
+        setHoverSnapshot(null);
+    };
+
+    const setCurrentFromSnapshot = (snapshot: ProductEditSnapshot) => {
+        setName(snapshot.name);
+        setDescription(snapshot.description);
+        setBarcode(snapshot.barcode);
+        setPriceText(snapshot.priceText);
+        setStockText(snapshot.stockText);
+        setCategoryIdText(snapshot.categoryIdText);
+        setComentario(snapshot.comentario);
+        setMetadataItems(copyKVItems(snapshot.metadataItems));
+    };
+
+    const previewOriginalOnHover = () => {
+        if (isCreate() || !hasUpdateChanges() || isLoading() || previewingOriginal()) return;
+
+        setHoverSnapshot({
+            name: name(),
+            description: description(),
+            barcode: barcode(),
+            priceText: priceText(),
+            stockText: stockText(),
+            categoryIdText: categoryIdText(),
+            comentario: comentario(),
+            metadataItems: copyKVItems(metadataItems()),
+        });
+
+        applyInitialValues();
+        setPreviewingOriginal(true);
+    };
+
+    const restoreEditedOnLeave = () => {
+        if (!previewingOriginal()) return;
+        const snapshot = hoverSnapshot();
+        if (!snapshot) return;
+
+        setCurrentFromSnapshot(snapshot);
+        setPreviewingOriginal(false);
+        setHoverSnapshot(null);
+    };
 
     createEffect(() => {
         const product = props.product;
@@ -50,6 +194,7 @@ export const ModCUProd: Component<ModCUProdProps> = (props) => {
             setStockText("0");
             setCategoryIdText("");
             setComentario("");
+            setMetadataItems([]);
 
             setInitialName("");
             setInitialDescription(null);
@@ -57,6 +202,9 @@ export const ModCUProd: Component<ModCUProdProps> = (props) => {
             setInitialPrice(0);
             setInitialStock(0);
             setInitialCategoryId(null);
+            setInitialMetadataItems([]);
+            setPreviewingOriginal(false);
+            setHoverSnapshot(null);
             return;
         }
 
@@ -71,6 +219,8 @@ export const ModCUProd: Component<ModCUProdProps> = (props) => {
         setStockText(String(product.stock));
         setCategoryIdText(currentCategory);
         setComentario("");
+        const metadata = metadataToItems(product.metadata ?? null);
+        setMetadataItems(copyKVItems(metadata));
 
         setInitialName(product.name);
         setInitialDescription(product.description ?? null);
@@ -78,37 +228,40 @@ export const ModCUProd: Component<ModCUProdProps> = (props) => {
         setInitialPrice(product.price);
         setInitialStock(product.stock);
         setInitialCategoryId(product.category_id ?? null);
+        setInitialMetadataItems(copyKVItems(metadata));
+        setPreviewingOriginal(false);
+        setHoverSnapshot(null);
     });
 
-    const normalizeNullableText = (value: string) => {
+    function normalizeNullableText(value: string) {
         const trimmed = value.trim();
         return trimmed === "" ? null : trimmed;
-    };
+    }
 
-    const parseCategory = (raw: string): number | null | undefined => {
+    function parseCategory(raw: string): number | null | undefined {
         if (raw === "") return null;
         const numeric = Number(raw);
         if (!Number.isInteger(numeric) || numeric <= 0) {
             return undefined;
         }
         return numeric;
-    };
+    }
 
-    const parseStock = (raw: string): number | undefined => {
+    function parseStock(raw: string): number | undefined {
         const numeric = Number(raw);
         if (!Number.isInteger(numeric) || numeric < 0) {
             return undefined;
         }
         return numeric;
-    };
+    }
 
-    const parsePrice = (raw: string): number | undefined => {
+    function parsePrice(raw: string): number | undefined {
         const numeric = Number(raw);
         if (!Number.isFinite(numeric) || numeric <= 0) {
             return undefined;
         }
         return numeric;
-    };
+    }
 
     const handleApiError = async (status: number, detail: string) => {
         if (status === 401) {
@@ -149,6 +302,12 @@ export const ModCUProd: Component<ModCUProdProps> = (props) => {
 
         const descriptionValue = normalizeNullableText(description());
         const barcodeValue = normalizeNullableText(barcode());
+        const metadataValue = metadataItemsToObject(metadataItems());
+
+        if (!metadataValid()) {
+            addToast({ message: "Corrige la metadata antes de guardar", type: "error" });
+            return;
+        }
 
         setIsLoading(true);
 
@@ -161,6 +320,7 @@ export const ModCUProd: Component<ModCUProdProps> = (props) => {
                     description: descriptionValue,
                     barcode: barcodeValue,
                     category_id: categoryId,
+                    metadata: metadataValue,
                 };
 
                 const result = await createProduct(payload);
@@ -182,6 +342,7 @@ export const ModCUProd: Component<ModCUProdProps> = (props) => {
             if (price !== initialPrice()) payload.price = price;
             if (stock !== initialStock()) payload.stock = stock;
             if (categoryId !== initialCategoryId()) payload.category_id = categoryId;
+            if (metadataChanged()) payload.metadata = metadataValue;
 
             const comentarioValue = normalizeNullableText(comentario());
             if (comentarioValue) payload.comentario = comentarioValue;
@@ -219,6 +380,7 @@ export const ModCUProd: Component<ModCUProdProps> = (props) => {
                         value={name()}
                         onInput={(e) => setName(e.currentTarget.value)}
                         class={styles.input}
+                        classList={{ [styles.changedField]: !isCreate() && name().trim() !== initialName() }}
                         maxLength={120}
                         disabled={isLoading()}
                     />
@@ -234,6 +396,7 @@ export const ModCUProd: Component<ModCUProdProps> = (props) => {
                             value={priceText()}
                             onInput={(e) => setPriceText(e.currentTarget.value)}
                             class={styles.input}
+                            classList={{ [styles.changedField]: !isCreate() && parsePrice(priceText()) !== initialPrice() }}
                             disabled={isLoading()}
                         />
                     </div>
@@ -247,6 +410,7 @@ export const ModCUProd: Component<ModCUProdProps> = (props) => {
                             value={stockText()}
                             onInput={(e) => setStockText(e.currentTarget.value)}
                             class={styles.input}
+                            classList={{ [styles.changedField]: !isCreate() && parseStock(stockText()) !== initialStock() }}
                             disabled={isLoading()}
                         />
                     </div>
@@ -258,6 +422,7 @@ export const ModCUProd: Component<ModCUProdProps> = (props) => {
                         value={categoryIdText()}
                         onChange={(e) => setCategoryIdText(e.currentTarget.value)}
                         class={styles.input}
+                        classList={{ [styles.changedField]: !isCreate() && parseCategory(categoryIdText()) !== initialCategoryId() }}
                         disabled={isLoading()}
                     >
                         <option value="">Sin categoría</option>
@@ -274,6 +439,7 @@ export const ModCUProd: Component<ModCUProdProps> = (props) => {
                         value={barcode()}
                         onInput={(e) => setBarcode(e.currentTarget.value)}
                         class={styles.input}
+                        classList={{ [styles.changedField]: !isCreate() && normalizeNullableText(barcode()) !== initialBarcode() }}
                         maxLength={100}
                         disabled={isLoading()}
                     />
@@ -285,8 +451,40 @@ export const ModCUProd: Component<ModCUProdProps> = (props) => {
                         value={description()}
                         onInput={(e) => setDescription(e.currentTarget.value)}
                         class={styles.textarea}
+                        classList={{ [styles.changedField]: !isCreate() && normalizeNullableText(description()) !== initialDescription() }}
                         maxLength={500}
                         disabled={isLoading()}
+                    />
+                </div>
+
+                <div class={styles.field}>
+                    <label class={styles.label}>Metadata (clave/valor)</label>
+                    <KV
+                        items={metadataItems()}
+                        onChange={setMetadataItems}
+                        onValidityChange={setMetadataValid}
+                        disabled={isLoading()}
+                        classList={{ [styles.changedBlock]: !isCreate() && metadataChanged() }}
+                        validate={(item, index, items): KVValidationErrors | null => {
+                            const key = item.key.trim();
+                            const value = item.value;
+                            const errors: KVValidationErrors = {};
+
+                            if (key.length === 0 && value.trim().length > 0) {
+                                errors.key = "La clave es obligatoria";
+                            }
+
+                            if (key.length > 0) {
+                                const duplicates = items.filter(
+                                    (entry, idx) => idx !== index && entry.key.trim().toLowerCase() === key.toLowerCase(),
+                                );
+                                if (duplicates.length > 0) {
+                                    errors.key = "La clave no puede repetirse";
+                                }
+                            }
+
+                            return errors.key || errors.value ? errors : null;
+                        }}
                     />
                 </div>
 
@@ -297,36 +495,75 @@ export const ModCUProd: Component<ModCUProdProps> = (props) => {
                             value={comentario()}
                             onInput={(e) => setComentario(e.currentTarget.value)}
                             class={styles.textarea}
+                            classList={{ [styles.changedField]: comentario().trim().length > 0 }}
                             maxLength={200}
                             disabled={isLoading()}
                         />
                     </div>
                 )}
 
-                <div class={styles.buttons}>
-                    <button
-                        class={styles.btnCancel}
-                        onClick={props.onClose}
-                        disabled={isLoading()}
-                    >
-                        Cancelar
-                    </button>
+                {isCreate() ? (
+                    <div class={styles.buttons}>
+                        <button
+                            class={styles.btnCancel}
+                            onClick={props.onClose}
+                            disabled={isLoading()}
+                        >
+                            Cancelar
+                        </button>
 
-                    <button
-                        class={styles.btnPrimary}
-                        onClick={handleSave}
-                        disabled={isLoading()}
-                    >
-                        {isLoading() ? (
-                            <span class={styles.loadingContent}>
-                                <LoadingLoop />
-                                Guardando...
-                            </span>
-                        ) : (
-                            "Guardar"
-                        )}
-                    </button>
-                </div>
+                        <button
+                            class={styles.btnPrimary}
+                            onClick={handleSave}
+                            disabled={isLoading()}
+                        >
+                            {isLoading() ? (
+                                <span class={styles.loadingContent}>
+                                    <LoadingLoop />
+                                    Guardando...
+                                </span>
+                            ) : (
+                                "Guardar"
+                            )}
+                        </button>
+                    </div>
+                ) : (
+                    <div class={styles.buttonsUpdate}>
+                        <button
+                            class={styles.btnCancel}
+                            onClick={props.onClose}
+                            disabled={isLoading()}
+                        >
+                            Cancelar
+                        </button>
+
+                        <button
+                            class={styles.btnPreview}
+                            classList={{ [styles.btnPreviewActive]: hasUpdateChanges() }}
+                            disabled={isLoading() || !hasUpdateChanges()}
+                            onMouseEnter={previewOriginalOnHover}
+                            onMouseLeave={restoreEditedOnLeave}
+                            onClick={resetToInitial}
+                        >
+                            {previewingOriginal() ? "Aplicar cambios" : "Ver cambios"}
+                        </button>
+
+                        <button
+                            class={styles.btnPrimary}
+                            onClick={handleSave}
+                            disabled={isLoading()}
+                        >
+                            {isLoading() ? (
+                                <span class={styles.loadingContent}>
+                                    <LoadingLoop />
+                                    Guardando...
+                                </span>
+                            ) : (
+                                "Actualizar"
+                            )}
+                        </button>
+                    </div>
+                )}
             </div>
         </ModalCommon>
     );

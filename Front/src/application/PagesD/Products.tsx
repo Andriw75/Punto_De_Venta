@@ -5,9 +5,16 @@ import styles from "./Products.module.css";
 import type { ProductoRealTime } from "../../domain/products";
 import { normalize } from "./utils";
 import { ModCUProd } from "../components/Products/ModCUProd";
+import { deleteProduct } from "../../infrastructure/products";
+import { confirm } from "../common/UI/Confirm/confirmStore";
+import { addToast } from "../common/UI/Toast/toastStore";
+import { useAuth } from "../context/auth";
+import { useNavigate } from "@solidjs/router";
 
 const Products: Component = () => {
     const { currentCategories, currentProducts } = useWebSocket();
+    const { logout } = useAuth();
+    const navigate = useNavigate();
 
     const [search, setSearch] = createSignal("");
 
@@ -17,34 +24,36 @@ const Products: Component = () => {
 
     /************************************************************************************/
     const handleDelete = async (_prod: ProductoRealTime) => {
-        // const result = await confirm(
-        //     "Atención",
-        //     `¿Seguro de eliminar la categoría ${cat.name}?`,
-        //     async () => await deleteCategory(cat.id),
-        // );
 
-        // if (result === null) return;
+        const result = await confirm(
+            "Atención",
+            `¿Seguro de eliminar el producto ${_prod.name}?`,
+            async () => await deleteProduct(_prod.id),
+        );
 
-        // if (result?.error) {
-        //     if (result.error.status === 401) {
-        //         await logout(false);
-        //         navigate("/login");
-        //         return;
-        //     }
 
-        //     addToast({
-        //         message: `Error al eliminar: ${result.error.detail}`,
-        //         type: "error",
-        //     });
-        //     return;
-        // }
+        if (result === null) return;
 
-        // if (result?.data) {
-        //     addToast({
-        //         message: "Categoría eliminada",
-        //         type: "success",
-        //     });
-        // }
+        if (result?.error) {
+            if (result.error.status === 401) {
+                await logout(false);
+                navigate("/login");
+                return;
+            }
+
+            addToast({
+                message: `Error al eliminar: ${result.error.detail}`,
+                type: "error",
+            });
+            return;
+        }
+
+        if (result?.data) {
+            addToast({
+                message: "Producto eliminado",
+                type: "success",
+            });
+        }
     };
 
 

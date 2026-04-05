@@ -18,6 +18,12 @@ interface ModCUCatProps {
     category?: CategoriesRealTime | null;
 }
 
+type CategoryEditSnapshot = {
+    name: string;
+    color: string;
+    comentario: string;
+};
+
 export const ModCUCat: Component<ModCUCatProps> = (props) => {
     const navigate = useNavigate();
     const { logout } = useAuth();
@@ -26,11 +32,59 @@ export const ModCUCat: Component<ModCUCatProps> = (props) => {
     const [color, setColor] = createSignal("#ffffff");
     const [comentario, setComentario] = createSignal("");
     const [isLoading, setIsLoading] = createSignal(false);
+    const [previewingOriginal, setPreviewingOriginal] = createSignal(false);
+    const [hoverSnapshot, setHoverSnapshot] = createSignal<CategoryEditSnapshot | null>(null);
 
     const [initialName, setInitialName] = createSignal("");
     const [initialColor, setInitialColor] = createSignal("#ffffff");
 
     const isCreate = () => props.category == null;
+
+    const hasUpdateChanges = () => {
+        if (isCreate()) return false;
+        return (
+            name().trim() !== initialName() ||
+            color() !== initialColor() ||
+            comentario().trim().length > 0
+        );
+    };
+
+    const applyInitialValues = () => {
+        setName(initialName());
+        setColor(initialColor());
+        setComentario("");
+    };
+
+    const resetToInitial = () => {
+        applyInitialValues();
+        setPreviewingOriginal(false);
+        setHoverSnapshot(null);
+    };
+
+    const previewOriginalOnHover = () => {
+        if (isCreate() || !hasUpdateChanges() || isLoading() || previewingOriginal()) return;
+
+        setHoverSnapshot({
+            name: name(),
+            color: color(),
+            comentario: comentario(),
+        });
+
+        applyInitialValues();
+        setPreviewingOriginal(true);
+    };
+
+    const restoreEditedOnLeave = () => {
+        if (!previewingOriginal()) return;
+        const snapshot = hoverSnapshot();
+        if (!snapshot) return;
+
+        setName(snapshot.name);
+        setColor(snapshot.color);
+        setComentario(snapshot.comentario);
+        setPreviewingOriginal(false);
+        setHoverSnapshot(null);
+    };
 
     createEffect(() => {
         const cat = props.category;
@@ -41,17 +95,23 @@ export const ModCUCat: Component<ModCUCatProps> = (props) => {
 
             setName(currentName);
             setColor(currentColor);
+            setComentario("");
 
             setInitialName(currentName);
             setInitialColor(currentColor);
+            setPreviewingOriginal(false);
+            setHoverSnapshot(null);
             return;
         }
 
         setName("");
         setColor("#ffffff");
+        setComentario("");
 
         setInitialName("");
         setInitialColor("#ffffff");
+        setPreviewingOriginal(false);
+        setHoverSnapshot(null);
     });
 
     const handleSave = async () => {
@@ -144,6 +204,7 @@ export const ModCUCat: Component<ModCUCatProps> = (props) => {
                         value={name()}
                         onInput={(e) => setName(e.currentTarget.value)}
                         class={styles.input}
+                        classList={{ [styles.changedField]: !isCreate() && name().trim() !== initialName() }}
                         maxLength={100}
                         disabled={isLoading()}
                     />
@@ -151,7 +212,10 @@ export const ModCUCat: Component<ModCUCatProps> = (props) => {
 
                 <div class={styles.field}>
                     <label class={styles.label}>Color</label>
-                    <div class={styles.colorRow}>
+                    <div
+                        class={styles.colorRow}
+                        classList={{ [styles.changedField]: !isCreate() && color() !== initialColor() }}
+                    >
                         <input
                             type="color"
                             value={color()}
@@ -169,35 +233,74 @@ export const ModCUCat: Component<ModCUCatProps> = (props) => {
                         value={comentario()}
                         onInput={(e) => setComentario(e.currentTarget.value)}
                         class={styles.input}
+                        classList={{ [styles.changedField]: comentario().trim().length > 0 }}
                         maxLength={100}
                         disabled={isLoading()}
                     />
                 </div>}
 
-                <div class={styles.buttons}>
-                    <button
-                        class={styles.btnCancel}
-                        onClick={props.onClose}
-                        disabled={isLoading()}
-                    >
-                        Cancelar
-                    </button>
+                {isCreate() ? (
+                    <div class={styles.buttons}>
+                        <button
+                            class={styles.btnCancel}
+                            onClick={props.onClose}
+                            disabled={isLoading()}
+                        >
+                            Cancelar
+                        </button>
 
-                    <button
-                        class={styles.btnPrimary}
-                        onClick={handleSave}
-                        disabled={isLoading()}
-                    >
-                        {isLoading() ? (
-                            <span class={styles.loadingContent}>
-                                <LoadingLoop />
-                                Guardando...
-                            </span>
-                        ) : (
-                            "Guardar"
-                        )}
-                    </button>
-                </div>
+                        <button
+                            class={styles.btnPrimary}
+                            onClick={handleSave}
+                            disabled={isLoading()}
+                        >
+                            {isLoading() ? (
+                                <span class={styles.loadingContent}>
+                                    <LoadingLoop />
+                                    Guardando...
+                                </span>
+                            ) : (
+                                "Guardar"
+                            )}
+                        </button>
+                    </div>
+                ) : (
+                    <div class={styles.buttonsUpdate}>
+                        <button
+                            class={styles.btnCancel}
+                            onClick={props.onClose}
+                            disabled={isLoading()}
+                        >
+                            Cancelar
+                        </button>
+
+                        <button
+                            class={styles.btnPreview}
+                            classList={{ [styles.btnPreviewActive]: hasUpdateChanges() }}
+                            disabled={isLoading() || !hasUpdateChanges()}
+                            onMouseEnter={previewOriginalOnHover}
+                            onMouseLeave={restoreEditedOnLeave}
+                            onClick={resetToInitial}
+                        >
+                            {previewingOriginal() ? "Aplicar cambios" : "Ver cambios"}
+                        </button>
+
+                        <button
+                            class={styles.btnPrimary}
+                            onClick={handleSave}
+                            disabled={isLoading()}
+                        >
+                            {isLoading() ? (
+                                <span class={styles.loadingContent}>
+                                    <LoadingLoop />
+                                    Guardando...
+                                </span>
+                            ) : (
+                                "Actualizar"
+                            )}
+                        </button>
+                    </div>
+                )}
             </div>
         </ModalCommon>
     );
