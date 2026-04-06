@@ -1,0 +1,175 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 4px 2px;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--primary-dark);
+}
+
+.input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: #fff;
+  color: var(--primary-dark);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input:focus {
+  border-color: var(--secondary);
+  box-shadow: 0 0 0 3px rgba(var(--secondary-rgb), 0.16);
+}
+
+.changedField {
+  border-color: var(--secondary);
+  box-shadow: 0 0 0 2px rgba(var(--secondary-rgb), 0.12);
+}
+
+.permissionsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 10px;
+  background: #fbfdff;
+}
+
+.changedGroup {
+  border-color: var(--secondary);
+  box-shadow: 0 0 0 2px rgba(var(--secondary-rgb), 0.12);
+}
+
+.permissionOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  color: var(--primary-dark);
+  font-weight: 600;
+}
+
+.permissionOption input {
+  accent-color: var(--secondary);
+}
+
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.buttonsUpdate {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.buttonsUpdate .btnCancel {
+  justify-self: start;
+}
+
+.buttonsUpdate .btnPrimary {
+  justify-self: end;
+}
+
+.btnPrimary {
+  background: var(--secondary);
+  color: #fff;
+  border: none;
+  padding: 9px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.btnPrimary:hover {
+  background: var(--secondary-dark);
+}
+
+.btnPrimary:disabled,
+.btnCancel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btnCancel {
+  background: rgba(30, 58, 95, 0.08);
+  color: var(--primary);
+  border: 1px solid rgba(30, 58, 95, 0.25);
+  padding: 9px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.btnCancel:hover {
+  background: rgba(30, 58, 95, 0.14);
+}
+
+.btnPreview {
+  background: rgba(30, 58, 95, 0.1);
+  color: var(--primary-dark);
+  border: 1px solid rgba(30, 58, 95, 0.28);
+  padding: 9px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  justify-self: center;
+}
+
+.btnPreview:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btnPreviewActive {
+  background: rgba(var(--secondary-rgb), 0.14);
+  border-color: rgba(var(--secondary-rgb), 0.42);
+  color: var(--secondary-dark);
+}
+
+.loading {
+  pointer-events: none;
+  opacity: 0.72;
+}
+
+.loadingContent {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+@media (max-width: 640px) {
+  .permissionsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .buttonsUpdate {
+    grid-template-columns: 1fr;
+  }
+}
