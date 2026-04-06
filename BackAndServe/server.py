@@ -61,6 +61,12 @@ app.include_router(productsRW)
 from application.personsR import personsR
 app.include_router(personsR)
 
+from application.paymentMethodsRW import paymentMethodsRW
+app.include_router(paymentMethodsRW)
+
+from application.salesRW import salesRW
+app.include_router(salesRW)
+
 #####################################################
 import sys
 import os

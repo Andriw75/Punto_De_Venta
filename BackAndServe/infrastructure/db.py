@@ -96,10 +96,40 @@ CREATE TABLE IF NOT EXISTS product_snapshot (
 """
         tables.append(sql)
 
+        sql = """
+CREATE TABLE IF NOT EXISTS payment_methods (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE
+);
+"""
+        tables.append(sql)
+
+        sql = """
+CREATE TABLE IF NOT EXISTS sales (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    sale_date TIMESTAMP NOT NULL,
+    username VARCHAR,
+    data TEXT NOT NULL,
+    payment_method_id INTEGER NOT NULL,
+    FOREIGN KEY (payment_method_id) REFERENCES payment_methods(id)
+);
+"""
+        tables.append(sql)
+
 
 
         for t in tables:
             await self._connection.execute(t)
+
+        cursor = await self._connection.execute("SELECT COUNT(*) FROM payment_methods")
+        row = await cursor.fetchone()
+        count = row[0] if row else 0
+        if count == 0:
+            await self._connection.execute(
+                "INSERT INTO payment_methods (name) VALUES (?)",
+                ("Efectivo",)
+            )
+            await self._connection.commit()
             
 
     @asynccontextmanager

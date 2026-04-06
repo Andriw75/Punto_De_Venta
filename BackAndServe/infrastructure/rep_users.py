@@ -1,5 +1,6 @@
 import json
 from datetime import datetime, timezone
+from aiosqlite import IntegrityError
 from fastapi import HTTPException, status
 from domain.users import UserCreate, UserUpdate, UserDb, UserAdmin
 from infrastructure.db import SQLiteDB
@@ -126,27 +127,38 @@ class RepUsers:
         description: str | None = None
     ) -> int:
         async with self.db.transaction() as conn:
-            cursor = await conn.execute(
-                """
-                INSERT INTO "User" (username, password, permissions)
-                VALUES (?, ?, ?)
-                """,
-                (user.name, user.password, json.dumps(user.permissions))
-            )
-            user_id = cursor.lastrowid
+            try:
+                cursor = await conn.execute(
+                    """
+                    INSERT INTO "User" (username, password, permissions)
+                    VALUES (?, ?, ?)
+                    """,
+                    (user.name, user.password, json.dumps(user.permissions))
+                )
+                user_id = cursor.lastrowid
 
-            await self.db.insert_audit(
-                conn,
-                actor,
-                "INSERT",
-                self.entity_type,
-                user_id,
-                None,
-                {"username": user.name, "permissions": user.permissions},
-                description
-            )
+                await self.db.insert_audit(
+                    conn,
+                    actor,
+                    "INSERT",
+                    self.entity_type,
+                    user_id,
+                    None,
+                    {"username": user.name, "permissions": user.permissions},
+                    description
+                )
 
-            return user_id
+                return user_id
+            except IntegrityError as e:
+                if "UNIQUE constraint failed: User.username" in str(e):
+                    raise HTTPException(
+                        status_code=status.HTTP_409_CONFLICT,
+                        detail="El usuario ya existe",
+                    )
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="Error de integridad en base de datos",
+                )
 
     async def update_user(
         self,
