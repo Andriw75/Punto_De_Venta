@@ -1,8 +1,9 @@
-
 import json
+from datetime import datetime, timezone
 from fastapi import HTTPException, status
 from domain.users import UserCreate, UserUpdate, UserDb, UserAdmin
 from infrastructure.db import SQLiteDB
+
 
 class RepUsers:
 
@@ -10,13 +11,86 @@ class RepUsers:
         self.entity_type = "USER"
         self.db = db
 
-    async def get_all_users(self) -> list[UserAdmin]:
+    @staticmethod
+    def _normalize_datetime(value: datetime | None) -> str | None:
+        if value is None:
+            return None
+
+        if value.tzinfo is not None:
+            value = value.astimezone(timezone.utc).replace(tzinfo=None)
+
+        return value.strftime("%Y-%m-%d %H:%M:%S")
+
+    async def list_users_len(
+        self,
+        start_time: datetime | None = None,
+        end_time: datetime | None = None,
+    ) -> int:
+        start_str = self._normalize_datetime(start_time)
+        end_str = self._normalize_datetime(end_time)
+
         async with self.db.acquire() as conn:
             cursor = await conn.execute(
                 """
-                SELECT id, username AS name, permissions
-                FROM "User"
+                WITH user_created AS (
+                    SELECT entity_id, MIN(created_at) AS created_at
+                    FROM audit_log
+                    WHERE entity_type = 'USER' AND action_type = 'INSERT'
+                    GROUP BY entity_id
+                )
+                SELECT COUNT(*) AS total
+                FROM "User" u
+                LEFT JOIN user_created uc ON uc.entity_id = CAST(u.id AS TEXT)
+                WHERE (? IS NULL OR uc.created_at >= ?)
+                  AND (? IS NULL OR uc.created_at <= ?)
+                """,
+                (
+                    start_str,
+                    start_str,
+                    end_str,
+                    end_str,
+                )
+            )
+
+            row = await cursor.fetchone()
+            return int(row["total"]) if row else 0
+
+    async def list_users(
+        self,
+        offset: int = 0,
+        limit: int = 100,
+        start_time: datetime | None = None,
+        end_time: datetime | None = None,
+    ) -> list[UserAdmin]:
+        start_str = self._normalize_datetime(start_time)
+        end_str = self._normalize_datetime(end_time)
+
+        async with self.db.acquire() as conn:
+            cursor = await conn.execute(
                 """
+                WITH user_created AS (
+                    SELECT entity_id, MIN(created_at) AS created_at
+                    FROM audit_log
+                    WHERE entity_type = 'USER' AND action_type = 'INSERT'
+                    GROUP BY entity_id
+                )
+                SELECT u.id, u.username AS name, u.permissions
+                FROM "User" u
+                LEFT JOIN user_created uc ON uc.entity_id = CAST(u.id AS TEXT)
+                WHERE (? IS NULL OR uc.created_at >= ?)
+                  AND (? IS NULL OR uc.created_at <= ?)
+                ORDER BY u.id DESC
+                LIMIT ? OFFSET ?
+                """
+                ,
+                (
+                    start_str,
+                    start_str,
+                    end_str,
+                    end_str,
+                    limit,
+                    offset,
+                )
             )
             rows = await cursor.fetchall()
 

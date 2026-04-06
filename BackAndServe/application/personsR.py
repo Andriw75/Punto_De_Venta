@@ -1,6 +1,9 @@
 PERMISO_USER = "USUARIOS"
 
-from fastapi import APIRouter, Depends
+from datetime import datetime
+from typing import Optional
+
+from fastapi import APIRouter, Depends, Query
 from dependency_injector.wiring import inject, Provide
 
 from domain.users import UserAdmin, UserCreate, UserUpdate, UserCookie
@@ -16,10 +19,33 @@ personsR = APIRouter(prefix="/Persons", tags=["Persons"])
 @personsR.get("/", response_model=list[UserAdmin])
 @inject
 async def listar_usuarios(
+    offset: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1),
+    start_time: Optional[datetime] = Query(default=None),
+    end_time: Optional[datetime] = Query(default=None),
     current_user: UserCookie = Depends(permission_required(PERMISO_USER)),
     repo: RepUsers = Depends(Provide[Container.user_repository]),
 ):
-    return await repo.get_all_users()
+    return await repo.list_users(
+        offset=offset,
+        limit=limit,
+        start_time=start_time,
+        end_time=end_time,
+    )
+
+
+@personsR.get("/count", response_model=int)
+@inject
+async def contar_usuarios(
+    start_time: Optional[datetime] = Query(default=None),
+    end_time: Optional[datetime] = Query(default=None),
+    current_user: UserCookie = Depends(permission_required(PERMISO_USER)),
+    repo: RepUsers = Depends(Provide[Container.user_repository]),
+):
+    return await repo.list_users_len(
+        start_time=start_time,
+        end_time=end_time,
+    )
 
 
 @personsR.post("/", response_model=bool)
