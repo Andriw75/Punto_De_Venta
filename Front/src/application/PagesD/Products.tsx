@@ -110,6 +110,10 @@ const Products: Component = () => {
                     </button>
                 </div>
 
+                <Show when={currentProducts().length === 0}>
+                    <p class={stylesC.emptyState}>No se encontraron productos</p>
+                </Show>
+
                 <div class={styles.grid}>
                     <For each={productsItems()}>
                         {(item) => (
@@ -167,9 +171,7 @@ const Products: Component = () => {
 
             </div>
 
-            <Show when={currentProducts().length === 0}>
-                <p class={stylesC.emptyState}>No se encontraron productos</p>
-            </Show>
+
 
             <Show when={selectProduct() !== undefined}>
                 <ModCUProd

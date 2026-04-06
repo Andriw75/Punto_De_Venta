@@ -8,6 +8,7 @@ import {
 import type { Accessor } from "solid-js";
 import type { ProductoRealTime } from "../../domain/products";
 import type { CategoriesRealTime } from "../../domain/categories";
+import type { PaymentMethodRealTime } from "../../domain/payment_methods";
 
 interface WebSocketContextType {
   socket: Accessor<WebSocket | null>;
@@ -18,6 +19,7 @@ interface WebSocketContextType {
   sendMessage: (msg: unknown) => Promise<void>;
   currentProducts: Accessor<ProductoRealTime[]>;
   currentCategories: Accessor<CategoriesRealTime[]>;
+  currentPaymentMethods: Accessor<PaymentMethodRealTime[]>;
 }
 
 const WebSocketContext = createContext<WebSocketContextType>();
@@ -27,6 +29,7 @@ export const WebSocketProvider = (props: { children: JSXElement }) => {
   const [isConnected, setIsConnected] = createSignal(false);
   const [currentProducts, setCurrentProducts] = createSignal<ProductoRealTime[]>([]);
   const [currentCategories, setCurrentCategories] = createSignal<CategoriesRealTime[]>([]);
+  const [currentPaymentMethods, setCurrentPaymentMethods] = createSignal<PaymentMethodRealTime[]>([]);
 
   const wsUrl = import.meta.env.VITE_CONEX_WS as string;
 
@@ -48,6 +51,11 @@ export const WebSocketProvider = (props: { children: JSXElement }) => {
 
     if (data?.event === "current_categories") {
       setCurrentCategories(data.data ?? []);
+      return;
+    }
+
+    if (data?.event === "current_payment_methods") {
+      setCurrentPaymentMethods(data.data ?? []);
       return;
     }
 
@@ -143,6 +151,7 @@ export const WebSocketProvider = (props: { children: JSXElement }) => {
         sendMessage,
         currentProducts,
         currentCategories,
+        currentPaymentMethods,
       }}
     >
       {props.children}

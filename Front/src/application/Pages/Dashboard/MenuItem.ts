@@ -1,6 +1,7 @@
 import type { Component } from "solid-js";
 import Money16 from "../../common/IconSvg/Money16";
 import Labels from "../../common/IconSvg/Labels";
+import Payment16Regular from "../../common/IconSvg/Payment16Regular";
 import User from "../../common/IconSvg/User";
 
 export type MenuItem = {
@@ -24,13 +25,13 @@ export const menu: MenuItem[] = [
     requiredPermission: "CATEGORIAS",
     icon: { component: Labels, props: { width: "20px", height: "20px" } },
   },
-  // {
-  //   label: "Metodos de pago",
-  //   key: "PAYMENT_METHODS",
-  //   route: "/dashboard/metodos-de-pago",
-  //   requiredPermission: "VENTAS",
-  //   icon: { component: Payment16Regular, props: { width: "20px", height: "20px" } },
-  // },
+  {
+    label: "Metodos de pago",
+    key: "PAYMENT_METHODS",
+    route: "/dashboard/metodos-de-pago",
+    requiredPermission: "VENTAS",
+    icon: { component: Payment16Regular, props: { width: "20px", height: "20px" } },
+  },
   {
     label: "Productos",
     key: "PRODUCTOS",
