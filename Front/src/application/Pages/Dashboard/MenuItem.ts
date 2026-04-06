@@ -3,6 +3,7 @@ import Money16 from "../../common/IconSvg/Money16";
 import Labels from "../../common/IconSvg/Labels";
 import Payment16Regular from "../../common/IconSvg/Payment16Regular";
 import User from "../../common/IconSvg/User";
+import Bag from "../../common/IconSvg/Bag";
 
 export type MenuItem = {
   label: string;
@@ -39,13 +40,13 @@ export const menu: MenuItem[] = [
     requiredPermission: "PRODUCTOS",
     icon: { component: Money16, props: { width: "30px", height: "30px" } },
   },
-  // {
-  //   label: "Ventas",
-  //   key: "VENTAS",
-  //   route: "/dashboard/ventas",
-  //   requiredPermission: "VENTAS",
-  //   icon: { component: Bag, props: { width: "30px", height: "30px" } },
-  // },
+  {
+    label: "Ventas",
+    key: "VENTAS",
+    route: "/dashboard/ventas",
+    requiredPermission: "VENTAS",
+    icon: { component: Bag, props: { width: "24px", height: "24px" } },
+  },
   {
     label: "Usuarios",
     key: "USUARIOS",

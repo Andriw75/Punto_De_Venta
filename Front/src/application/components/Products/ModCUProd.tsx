@@ -15,6 +15,8 @@ import styles from "./ModCUProd.module.css";
 interface ModCUProdProps {
     onClose: () => void;
     product?: ProductoRealTime | null;
+    defaultName?: string;
+    defaultBarcode?: string;
 }
 
 type ProductEditSnapshot = {
@@ -187,18 +189,21 @@ export const ModCUProd: Component<ModCUProdProps> = (props) => {
         const product = props.product;
 
         if (!product) {
-            setName("");
+            const prefillName = props.defaultName?.trim() ?? "";
+            const prefillBarcode = props.defaultBarcode?.trim() ?? "";
+
+            setName(prefillName);
             setDescription("");
-            setBarcode("");
+            setBarcode(prefillBarcode);
             setPriceText("");
             setStockText("0");
             setCategoryIdText("");
             setComentario("");
             setMetadataItems([]);
 
-            setInitialName("");
+            setInitialName(prefillName);
             setInitialDescription(null);
-            setInitialBarcode(null);
+            setInitialBarcode(prefillBarcode || null);
             setInitialPrice(0);
             setInitialStock(0);
             setInitialCategoryId(null);

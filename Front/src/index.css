@@ -55,8 +55,18 @@
   /* Color de fondo del contenido principal */
 
 
-  --danger: red;
-  --warning: yellow;
+  --danger: #dc2626;
+  --danger-dark: #b91c1c;
+  --warning: #f59e0b;
+
+  /* Tokens de apoyo para nuevas vistas */
+  --surface: #ffffff;
+  --surface-alt: #f5f8fc;
+  --border-color: rgba(30, 58, 95, 0.2);
+  --text-primary: var(--primary-dark);
+  --text-secondary: #5f7085;
+  --text-muted: #6d8097;
+  --text-inverted: #ffffff;
 }
 
 body {
