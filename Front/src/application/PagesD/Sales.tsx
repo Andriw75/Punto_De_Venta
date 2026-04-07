@@ -2,7 +2,7 @@ import { For, Show, createMemo, createSignal, onMount, type Component } from "so
 import { useNavigate } from "@solidjs/router";
 import LoadingLoop from "../common/IconSvg/LoadingLoop";
 import Pagination from "../common/components/Pagination";
-import { confirm } from "../common/UI/Confirm/confirmStore";
+import { confirmWithOptions } from "../common/UI/Confirm/confirmStore";
 import { addToast } from "../common/UI/Toast/toastStore";
 import { useAuth } from "../context/auth";
 import { useWebSocket } from "../context/web_socket";
@@ -50,6 +50,8 @@ const Sales: Component = () => {
   const [selectedSale, setSelectedSale] = createSignal<SaleResponse | null | undefined>(undefined);
   const [showCreateProductModal, setShowCreateProductModal] = createSignal(false);
   const [createProductPrefill, setCreateProductPrefill] = createSignal<{ name?: string; barcode?: string }>({});
+  const [deleteComment, setDeleteComment] = createSignal("");
+  const [deleteRestoreStock, setDeleteRestoreStock] = createSignal(false);
 
   const totalPages = createMemo(() =>
     totalCount() > 0 ? Math.ceil(totalCount() / LIMIT) : 0,
@@ -140,11 +142,53 @@ const Sales: Component = () => {
   };
 
   const handleDelete = async (sale: SaleResponse) => {
-    const result = await confirm(
-      "Atención",
-      `¿Seguro de eliminar la venta #${sale.id}? (sin restaurar stock)`,
-      async () => await deleteSale(sale.id, false),
-    );
+    setDeleteComment("");
+    setDeleteRestoreStock(false);
+
+    const result = await confirmWithOptions({
+      title: "Atención",
+      message: `¿Seguro de eliminar la venta #${sale.id}?`,
+      confirmText: "Eliminar",
+      content: (
+        <div style={{ display: "grid", gap: "0.75rem" }}>
+          <div style={{ display: "grid", gap: "0.5rem" }}>
+            <label style={{ color: "#52525b", "font-size": "0.9rem" }}>
+              Comentario (opcional)
+            </label>
+            <textarea
+              value={deleteComment()}
+              maxLength={200}
+              placeholder="Motivo de eliminación..."
+              onInput={(e) => setDeleteComment(e.currentTarget.value)}
+              style={{
+                "min-height": "5.5rem",
+                resize: "vertical",
+                border: "1px solid #d4d4d8",
+                "border-radius": "8px",
+                padding: "0.6rem 0.7rem",
+                "font-size": "0.92rem",
+                "font-family": "inherit",
+              }}
+            />
+          </div>
+
+          <label style={{ display: "flex", "align-items": "center", gap: "0.5rem", color: "#3f3f46" }}>
+            <input
+              type="checkbox"
+              checked={deleteRestoreStock()}
+              onChange={(e) => setDeleteRestoreStock(e.currentTarget.checked)}
+            />
+            Restaurar stock
+          </label>
+        </div>
+      ),
+      fn: async () =>
+        await deleteSale(
+          sale.id,
+          deleteRestoreStock(),
+          deleteComment().trim() || undefined,
+        ),
+    });
 
     if (result === null) return;
 

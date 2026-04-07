@@ -33,8 +33,9 @@ export async function updatePaymentMethod(
 
 export async function deletePaymentMethod(
   paymentMethodId: number,
+  comentario?: string,
 ): Promise<ApiResponse<boolean>> {
-  const query = buildQuery({ method_id: paymentMethodId });
+  const query = buildQuery({ method_id: paymentMethodId, comentario });
 
   return await handleResponse<boolean>(`${urlBase}/?${query}`, {
     method: "DELETE",

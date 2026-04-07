@@ -4,7 +4,7 @@ import styles from "./Users.module.css";
 import LoadingLoop from "../common/IconSvg/LoadingLoop";
 import Pagination from "../common/components/Pagination";
 import { addToast } from "../common/UI/Toast/toastStore";
-import { confirm } from "../common/UI/Confirm/confirmStore";
+import { confirmWithOptions } from "../common/UI/Confirm/confirmStore";
 import { useAuth } from "../context/auth";
 import type { UserAdmin } from "../../domain/users";
 import { deleteUser, fetchUsers, fetchUsersCount } from "../../infrastructure/users";
@@ -34,6 +34,7 @@ const Users: Component = () => {
   const [users, setUsers] = createSignal<UserAdmin[]>([]);
   const [showModal, setShowModal] = createSignal(false);
   const [selectedUser, setSelectedUser] = createSignal<UserAdmin | null>(null);
+  const [deleteComment, setDeleteComment] = createSignal("");
 
   const totalPages = createMemo(() =>
     totalCount() > 0 ? Math.ceil(totalCount() / LIMIT) : 0,
@@ -109,11 +110,36 @@ const Users: Component = () => {
   };
 
   const handleDelete = async (user: UserAdmin) => {
-    const result = await confirm(
-      "Atención",
-      `¿Seguro de eliminar al usuario ${user.name}?`,
-      async () => await deleteUser(user.id),
-    );
+    setDeleteComment("");
+
+    const result = await confirmWithOptions({
+      title: "Atención",
+      message: `¿Seguro de eliminar al usuario ${user.name}?`,
+      confirmText: "Eliminar",
+      content: (
+        <div style={{ display: "grid", gap: "0.5rem" }}>
+          <label style={{ color: "#52525b", "font-size": "0.9rem" }}>
+            Comentario (opcional)
+          </label>
+          <textarea
+            value={deleteComment()}
+            maxLength={200}
+            placeholder="Motivo de eliminación..."
+            onInput={(e) => setDeleteComment(e.currentTarget.value)}
+            style={{
+              "min-height": "5.5rem",
+              resize: "vertical",
+              border: "1px solid #d4d4d8",
+              "border-radius": "8px",
+              padding: "0.6rem 0.7rem",
+              "font-size": "0.92rem",
+              "font-family": "inherit",
+            }}
+          />
+        </div>
+      ),
+      fn: async () => await deleteUser(user.id, deleteComment().trim() || undefined),
+    });
 
     if (result === null) return;
 

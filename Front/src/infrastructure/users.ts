@@ -69,8 +69,9 @@ export async function updateUser(
 
 export async function deleteUser(
   userId: number,
+  comentario?: string,
 ): Promise<ApiResponse<boolean>> {
-  const query = buildQuery({ user_id: userId });
+  const query = buildQuery({ user_id: userId, comentario });
 
   return await handleResponse<boolean>(`${urlBase}/?${query}`, {
     method: "DELETE",

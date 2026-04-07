@@ -4,7 +4,7 @@ import styles from "./Categorias.module.css";
 import type { CategoriesRealTime } from "../../domain/categories";
 import { ModCUCat } from "../components/Categories/ModCUCat";
 import { deleteCategory } from "../../infrastructure/categories";
-import { confirm } from "../common/UI/Confirm/confirmStore";
+import { confirmWithOptions } from "../common/UI/Confirm/confirmStore";
 import { useNavigate } from "@solidjs/router";
 import { useAuth } from "../context/auth";
 import { addToast } from "../common/UI/Toast/toastStore";
@@ -20,6 +20,7 @@ const Categorias: Component = () => {
     const [selectCategory, setSelectCategory] = createSignal<
         CategoriesRealTime | null | undefined
     >(undefined);
+    const [deleteComment, setDeleteComment] = createSignal("");
 
 
     const matchesSearch = (cat: CategoriesRealTime, query: string) => {
@@ -51,11 +52,36 @@ const Categorias: Component = () => {
     };
 
     const handleDelete = async (cat: CategoriesRealTime) => {
-        const result = await confirm(
-            "Atención",
-            `¿Seguro de eliminar la categoría ${cat.name}?`,
-            async () => await deleteCategory(cat.id),
-        );
+        setDeleteComment("");
+
+        const result = await confirmWithOptions({
+            title: "Atención",
+            message: `¿Seguro de eliminar la categoría ${cat.name}?`,
+            confirmText: "Eliminar",
+            content: (
+                <div style={{ display: "grid", gap: "0.5rem" }}>
+                    <label style={{ color: "#52525b", "font-size": "0.9rem" }}>
+                        Comentario (opcional)
+                    </label>
+                    <textarea
+                        value={deleteComment()}
+                        maxLength={200}
+                        placeholder="Motivo de eliminación..."
+                        onInput={(e) => setDeleteComment(e.currentTarget.value)}
+                        style={{
+                            "min-height": "5.5rem",
+                            resize: "vertical",
+                            border: "1px solid #d4d4d8",
+                            "border-radius": "8px",
+                            padding: "0.6rem 0.7rem",
+                            "font-size": "0.92rem",
+                            "font-family": "inherit",
+                        }}
+                    />
+                </div>
+            ),
+            fn: async () => await deleteCategory(cat.id, deleteComment().trim() || undefined),
+        });
 
         if (result === null) return;
 

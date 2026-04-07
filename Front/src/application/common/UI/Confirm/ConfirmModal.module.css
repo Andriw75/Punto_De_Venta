@@ -8,6 +8,10 @@
   color: #333;
 }
 
+.modalBody {
+  margin-bottom: 1rem;
+}
+
 .errorText {
   color: #f44336;
   margin-bottom: 1rem;

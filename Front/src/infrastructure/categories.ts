@@ -33,9 +33,13 @@ export async function updateCategory(
     });
 }
 
-export async function deleteCategory(category_id: number): Promise<ApiResponse<boolean>> {
+export async function deleteCategory(
+    category_id: number,
+    comentario?: string,
+): Promise<ApiResponse<boolean>> {
     const params = buildQuery({
         category_id: category_id,
+        comentario,
     });
 
 

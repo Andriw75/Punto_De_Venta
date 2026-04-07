@@ -33,8 +33,9 @@ export async function updateProduct(
 
 export async function deleteProduct(
   productId: number,
+  comentario?: string,
 ): Promise<ApiResponse<boolean>> {
-  const query = buildQuery({ product_id: productId });
+  const query = buildQuery({ product_id: productId, comentario });
 
   return await handleResponse<boolean>(`${urlBase}/?${query}`, {
     method: "DELETE",

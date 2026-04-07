@@ -68,10 +68,12 @@ export async function updateSale(
 export async function deleteSale(
   saleId: number,
   restoreProducts: boolean,
+  comentario?: string,
 ): Promise<ApiResponse<boolean>> {
   const query = buildQuery({
     sale_id: saleId,
     restore_products: restoreProducts ? "true" : "false",
+    comentario,
   });
 
   return await handleResponse<boolean>(`${urlBase}/?${query}`, {

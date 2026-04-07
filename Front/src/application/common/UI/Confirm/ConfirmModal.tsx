@@ -1,4 +1,4 @@
-import { createSignal } from "solid-js";
+import { Show, createSignal, type JSX } from "solid-js";
 import type { Component } from "solid-js";
 import ModalCommon from "../ModalCommon";
 import LoadingLoop from "../../IconSvg/LoadingLoop";
@@ -6,8 +6,12 @@ import LoadingLoop from "../../IconSvg/LoadingLoop";
 import styles from "./ConfirmModal.module.css";
 
 interface ConfirmModalProps {
-  message: string;
+  message?: string;
+  content?: JSX.Element;
   title: string;
+  confirmText?: string;
+  cancelText?: string;
+  disableConfirm?: boolean;
   onConfirm: () => Promise<boolean | null>;
   onClose: () => void;
 }
@@ -21,10 +25,9 @@ const ConfirmModal: Component<ConfirmModalProps> = (props) => {
     setError("");
 
     try {
-      const ok = await props.onConfirm();
+      await props.onConfirm();
       setLoading(false);
-      props.onClose();
-      return ok;
+      return true;
     } catch (e) {
       setError(String(e));
       setLoading(false);
@@ -35,7 +38,14 @@ const ConfirmModal: Component<ConfirmModalProps> = (props) => {
   return (
     <ModalCommon onClose={props.onClose}>
       <h3 class={styles.modalHeader}>{props.title}</h3>
-      <p class={styles.modalMessage}>{props.message}</p>
+      <Show when={props.message && props.message!.trim().length > 0}>
+        <p class={styles.modalMessage}>{props.message}</p>
+      </Show>
+
+      <Show when={props.content}>
+        <div class={styles.modalBody}>{props.content}</div>
+      </Show>
+
       {error() && <p class={styles.errorText}>{error()}</p>}
 
       <div class={styles.buttonGroup}>
@@ -44,15 +54,15 @@ const ConfirmModal: Component<ConfirmModalProps> = (props) => {
           onClick={props.onClose}
           disabled={loading()}
         >
-          Cancelar
+          {props.cancelText ?? "Cancelar"}
         </button>
 
         <button
           class={`${styles.button} ${styles.confirmButton}`}
           onClick={handleConfirm}
-          disabled={loading()}
+          disabled={loading() || props.disableConfirm}
         >
-          {loading() ? <LoadingLoop width="1em" height="1em" /> : "Aceptar"}
+          {loading() ? <LoadingLoop width="1em" height="1em" /> : props.confirmText ?? "Aceptar"}
         </button>
       </div>
     </ModalCommon>

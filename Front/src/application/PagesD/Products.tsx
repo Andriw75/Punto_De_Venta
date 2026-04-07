@@ -6,7 +6,7 @@ import type { ProductoRealTime } from "../../domain/products";
 import { normalize } from "./utils";
 import { ModCUProd } from "../components/Products/ModCUProd";
 import { deleteProduct } from "../../infrastructure/products";
-import { confirm } from "../common/UI/Confirm/confirmStore";
+import { confirmWithOptions } from "../common/UI/Confirm/confirmStore";
 import { addToast } from "../common/UI/Toast/toastStore";
 import { useAuth } from "../context/auth";
 import { useNavigate } from "@solidjs/router";
@@ -21,15 +21,41 @@ const Products: Component = () => {
     const [selectProduct, setSelectProduct] = createSignal<
         ProductoRealTime | null | undefined
     >(undefined);
+    const [deleteComment, setDeleteComment] = createSignal("");
 
     /************************************************************************************/
     const handleDelete = async (_prod: ProductoRealTime) => {
 
-        const result = await confirm(
-            "Atención",
-            `¿Seguro de eliminar el producto ${_prod.name}?`,
-            async () => await deleteProduct(_prod.id),
-        );
+        setDeleteComment("");
+
+        const result = await confirmWithOptions({
+            title: "Atención",
+            message: `¿Seguro de eliminar el producto ${_prod.name}?`,
+            confirmText: "Eliminar",
+            content: (
+                <div style={{ display: "grid", gap: "0.5rem" }}>
+                    <label style={{ color: "#52525b", "font-size": "0.9rem" }}>
+                        Comentario (opcional)
+                    </label>
+                    <textarea
+                        value={deleteComment()}
+                        maxLength={200}
+                        placeholder="Motivo de eliminación..."
+                        onInput={(e) => setDeleteComment(e.currentTarget.value)}
+                        style={{
+                            "min-height": "5.5rem",
+                            resize: "vertical",
+                            border: "1px solid #d4d4d8",
+                            "border-radius": "8px",
+                            padding: "0.6rem 0.7rem",
+                            "font-size": "0.92rem",
+                            "font-family": "inherit",
+                        }}
+                    />
+                </div>
+            ),
+            fn: async () => await deleteProduct(_prod.id, deleteComment().trim() || undefined),
+        });
 
 
         if (result === null) return;

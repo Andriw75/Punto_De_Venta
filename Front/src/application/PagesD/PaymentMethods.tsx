@@ -4,7 +4,7 @@ import { useNavigate } from "@solidjs/router";
 import { useAuth } from "../context/auth";
 import { useWebSocket } from "../context/web_socket";
 import { addToast } from "../common/UI/Toast/toastStore";
-import { confirm } from "../common/UI/Confirm/confirmStore";
+import { confirmWithOptions } from "../common/UI/Confirm/confirmStore";
 import { ModCUPaymentMethod } from "../components/PaymentMethods/ModCUPaymentMethod";
 
 import type { PaymentMethodRealTime } from "../../domain/payment_methods";
@@ -22,6 +22,7 @@ const PaymentMethods: Component = () => {
   const [selectedMethod, setSelectedMethod] = createSignal<
     PaymentMethodRealTime | null | undefined
   >(undefined);
+  const [deleteComment, setDeleteComment] = createSignal("");
 
   const matchesSearch = (method: PaymentMethodRealTime, query: string) => {
     if (!query) return true;
@@ -48,11 +49,36 @@ const PaymentMethods: Component = () => {
   };
 
   const handleDelete = async (method: PaymentMethodRealTime) => {
-    const result = await confirm(
-      "Atención",
-      `¿Seguro de eliminar el método de pago ${method.name}?`,
-      async () => await deletePaymentMethod(method.id),
-    );
+    setDeleteComment("");
+
+    const result = await confirmWithOptions({
+      title: "Atención",
+      message: `¿Seguro de eliminar el método de pago ${method.name}?`,
+      confirmText: "Eliminar",
+      content: (
+        <div style={{ display: "grid", gap: "0.5rem" }}>
+          <label style={{ color: "#52525b", "font-size": "0.9rem" }}>
+            Comentario (opcional)
+          </label>
+          <textarea
+            value={deleteComment()}
+            maxLength={200}
+            placeholder="Motivo de eliminación..."
+            onInput={(e) => setDeleteComment(e.currentTarget.value)}
+            style={{
+              "min-height": "5.5rem",
+              resize: "vertical",
+              border: "1px solid #d4d4d8",
+              "border-radius": "8px",
+              padding: "0.6rem 0.7rem",
+              "font-size": "0.92rem",
+              "font-family": "inherit",
+            }}
+          />
+        </div>
+      ),
+      fn: async () => await deletePaymentMethod(method.id, deleteComment().trim() || undefined),
+    });
 
     if (result === null) return;
 
