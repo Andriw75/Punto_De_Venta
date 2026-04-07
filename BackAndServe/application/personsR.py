@@ -90,8 +90,9 @@ async def actualizar_usuario(
 @inject
 async def eliminar_usuario(
     user_id: int,
+    comentario: str | None = None,
     current_user: UserCookie = Depends(permission_required(PERMISO_USER)),
     repo: RepUsers = Depends(Provide[Container.user_repository]),
 ):
-    await repo.delete_user(user_id, actor=current_user.name)
+    await repo.delete_user(user_id, actor=current_user.name, description=comentario)
     return True

@@ -90,11 +90,12 @@ async def actualizar(
 @inject
 async def eliminar(
     category_id: int,
+    comentario: str | None = None,
     current_user: UserCookie = Depends(permission_required(PERMISO_USER)),
     repo: RepCategories = Depends(Provide[Container.category_rep]),
 ):
 
-    await repo.delete(current_user.name, category_id)
+    await repo.delete(current_user.name, category_id, description=comentario)
 
     await notify_categories()
     return True

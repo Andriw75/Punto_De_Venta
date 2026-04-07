@@ -123,7 +123,12 @@ class RepPaymentMethods(CachedRepository[PaymentMethodResponse]):
             await self.refresh_cache()
         return True
 
-    async def delete(self, actor: str, method_id: int) -> bool:
+    async def delete(
+        self,
+        actor: str,
+        method_id: int,
+        description: str | None = None,
+    ) -> bool:
         async with self.db.transaction() as conn:
             cursor = await conn.execute(
                 """
@@ -167,7 +172,7 @@ class RepPaymentMethods(CachedRepository[PaymentMethodResponse]):
                 method_id,
                 before,
                 None,
-                "",
+                description or "",
             )
 
         if self.is_cache:

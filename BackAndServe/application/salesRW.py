@@ -123,6 +123,7 @@ async def actualizar_venta(
 async def eliminar_venta(
     sale_id: int,
     restore_products: bool = False,
+    comentario: str | None = None,
     current_user: UserCookie = Depends(permission_required(PERMISO_USER)),
     repo_sales: RepSales = Depends(Provide[Container.sales_rep]),
     repo_products: RepProducts = Depends(Provide[Container.products_rep]),
@@ -131,6 +132,7 @@ async def eliminar_venta(
         deleted = await repo_sales.delete(
             sale_id,
             actor=current_user.name,
+            description=comentario,
             restore_products=restore_products,
         )
     except ValueError as err:

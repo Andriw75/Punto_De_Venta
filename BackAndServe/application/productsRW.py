@@ -75,11 +75,12 @@ async def actualizar(
 @inject
 async def eliminar(
     product_id: int,
+    comentario: str | None = None,
     current_user: UserCookie = Depends(permission_required("PRODUCTOS")),
     repo: RepProducts = Depends(Provide[Container.products_rep]),
 ):
 
-    await repo.delete(product_id, actor=current_user.name)
+    await repo.delete(product_id, actor=current_user.name, description=comentario)
 
     await notify_products()
     return True

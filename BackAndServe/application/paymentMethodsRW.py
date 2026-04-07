@@ -105,11 +105,12 @@ async def actualizar(
 @inject
 async def eliminar(
     method_id: int,
+    comentario: str | None = None,
     current_user: UserCookie = Depends(permission_required(PERMISO_USER)),
     repo: RepPaymentMethods = Depends(Provide[Container.payment_methods_rep]),
 ):
     try:
-        deleted = await repo.delete(current_user.name, method_id)
+        deleted = await repo.delete(current_user.name, method_id, description=comentario)
     except ValueError as err:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,

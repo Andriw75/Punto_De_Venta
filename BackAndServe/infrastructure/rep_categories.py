@@ -146,7 +146,8 @@ class RepCategories(CachedRepository[CategoryResponse]):
     async def delete(
         self,
         actor: str,
-        category_id: int
+        category_id: int,
+        description: str | None = None,
     ):
         
         async with self.db.transaction() as conn:
@@ -183,7 +184,7 @@ class RepCategories(CachedRepository[CategoryResponse]):
                 category_id,
                 before,
                 None,
-                ""
+                description or ""
             )
 
         if self._cache:
