@@ -23,9 +23,9 @@ async def list_audit_logs(
     limit: int = Query(default=20, ge=1, le=200),
     start_time: Optional[datetime] = Query(default=None),
     end_time: Optional[datetime] = Query(default=None),
-    username: Optional[str] = Query(default=None),
-    entity_type: Optional[AuditEntityType] = Query(default=None),
-    action_type: Optional[AuditActionType] = Query(default=None),
+    username: Optional[list[str]] = Query(default=None),
+    entity_type: Optional[list[AuditEntityType]] = Query(default=None),
+    action_type: Optional[list[AuditActionType]] = Query(default=None),
     current_user: UserCookie = Depends(permission_required(PERMISO_USER)),
     repo: RepAudit = Depends(Provide[Container.audit_rep]),
 ):
@@ -34,9 +34,9 @@ async def list_audit_logs(
         limit=limit,
         start_time=start_time,
         end_time=end_time,
-        username=username,
-        entity_type=entity_type,
-        action_type=action_type,
+        usernames=username,
+        entity_types=entity_type,
+        action_types=action_type,
     )
 
 
@@ -45,18 +45,18 @@ async def list_audit_logs(
 async def count_audit_logs(
     start_time: Optional[datetime] = Query(default=None),
     end_time: Optional[datetime] = Query(default=None),
-    username: Optional[str] = Query(default=None),
-    entity_type: Optional[AuditEntityType] = Query(default=None),
-    action_type: Optional[AuditActionType] = Query(default=None),
+    username: Optional[list[str]] = Query(default=None),
+    entity_type: Optional[list[AuditEntityType]] = Query(default=None),
+    action_type: Optional[list[AuditActionType]] = Query(default=None),
     current_user: UserCookie = Depends(permission_required(PERMISO_USER)),
     repo: RepAudit = Depends(Provide[Container.audit_rep]),
 ):
     return await repo.count_audit(
         start_time=start_time,
         end_time=end_time,
-        username=username,
-        entity_type=entity_type,
-        action_type=action_type,
+        usernames=username,
+        entity_types=entity_type,
+        action_types=action_type,
     )
 
 

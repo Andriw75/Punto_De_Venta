@@ -1,5 +1,6 @@
 import json
 from datetime import datetime, timezone
+from typing import Sequence
 
 from domain.audit import (
     AuditActionType,
@@ -49,24 +50,83 @@ class RepAudit:
             created_at=datetime.fromisoformat(row["created_at"]),
         )
 
+    @staticmethod
+    def _normalize_text_filters(values: Sequence[str] | None) -> list[str]:
+        if not values:
+            return []
+        clean = [value.strip() for value in values if value and value.strip()]
+        return list(dict.fromkeys(clean))
+
+    @staticmethod
+    def _build_in_clause(column: str, values: Sequence[str]) -> tuple[str, list[str]]:
+        placeholders = ", ".join(["?"] * len(values))
+        return f"{column} IN ({placeholders})", list(values)
+
+    def _build_where_clause(
+        self,
+        start_time: datetime | None,
+        end_time: datetime | None,
+        usernames: Sequence[str] | None,
+        entity_types: Sequence[AuditEntityType] | None,
+        action_types: Sequence[AuditActionType] | None,
+    ) -> tuple[str, list]:
+        clauses: list[str] = []
+        params: list = []
+
+        start_str = self._normalize_datetime(start_time)
+        if start_str is not None:
+            clauses.append("created_at >= ?")
+            params.append(start_str)
+
+        end_str = self._normalize_datetime(end_time)
+        if end_str is not None:
+            clauses.append("created_at <= ?")
+            params.append(end_str)
+
+        clean_usernames = self._normalize_text_filters(usernames)
+        if clean_usernames:
+            clause, values = self._build_in_clause("username", clean_usernames)
+            clauses.append(clause)
+            params.extend(values)
+
+        entity_values = [item.value for item in (entity_types or [])]
+        if entity_values:
+            clause, values = self._build_in_clause("entity_type", entity_values)
+            clauses.append(clause)
+            params.extend(values)
+
+        action_values = [item.value for item in (action_types or [])]
+        if action_values:
+            clause, values = self._build_in_clause("action_type", action_values)
+            clauses.append(clause)
+            params.extend(values)
+
+        if not clauses:
+            return "", params
+
+        return "WHERE " + " AND ".join(clauses), params
+
     async def list_audit(
         self,
         offset: int = 0,
         limit: int = 20,
         start_time: datetime | None = None,
         end_time: datetime | None = None,
-        username: str | None = None,
-        entity_type: AuditEntityType | None = None,
-        action_type: AuditActionType | None = None,
+        usernames: Sequence[str] | None = None,
+        entity_types: Sequence[AuditEntityType] | None = None,
+        action_types: Sequence[AuditActionType] | None = None,
     ) -> list[AuditLogResponse]:
-        start_str = self._normalize_datetime(start_time)
-        end_str = self._normalize_datetime(end_time)
-        entity_value = entity_type.value if entity_type else None
-        action_value = action_type.value if action_type else None
+        where_clause, params = self._build_where_clause(
+            start_time=start_time,
+            end_time=end_time,
+            usernames=usernames,
+            entity_types=entity_types,
+            action_types=action_types,
+        )
 
         async with self.db.acquire() as conn:
             cursor = await conn.execute(
-                """
+                f"""
                 SELECT
                     id,
                     username,
@@ -77,28 +137,11 @@ class RepAudit:
                     changes,
                     created_at
                 FROM audit_log
-                WHERE (? IS NULL OR created_at >= ?)
-                  AND (? IS NULL OR created_at <= ?)
-                  AND (? IS NULL OR username = ?)
-                  AND (? IS NULL OR entity_type = ?)
-                  AND (? IS NULL OR action_type = ?)
+                {where_clause}
                 ORDER BY created_at DESC, id DESC
                 LIMIT ? OFFSET ?
                 """,
-                (
-                    start_str,
-                    start_str,
-                    end_str,
-                    end_str,
-                    username,
-                    username,
-                    entity_value,
-                    entity_value,
-                    action_value,
-                    action_value,
-                    limit,
-                    offset,
-                ),
+                [*params, limit, offset],
             )
             rows = await cursor.fetchall()
 
@@ -108,38 +151,26 @@ class RepAudit:
         self,
         start_time: datetime | None = None,
         end_time: datetime | None = None,
-        username: str | None = None,
-        entity_type: AuditEntityType | None = None,
-        action_type: AuditActionType | None = None,
+        usernames: Sequence[str] | None = None,
+        entity_types: Sequence[AuditEntityType] | None = None,
+        action_types: Sequence[AuditActionType] | None = None,
     ) -> int:
-        start_str = self._normalize_datetime(start_time)
-        end_str = self._normalize_datetime(end_time)
-        entity_value = entity_type.value if entity_type else None
-        action_value = action_type.value if action_type else None
+        where_clause, params = self._build_where_clause(
+            start_time=start_time,
+            end_time=end_time,
+            usernames=usernames,
+            entity_types=entity_types,
+            action_types=action_types,
+        )
 
         async with self.db.acquire() as conn:
             cursor = await conn.execute(
-                """
+                f"""
                 SELECT COUNT(*) AS total
                 FROM audit_log
-                WHERE (? IS NULL OR created_at >= ?)
-                  AND (? IS NULL OR created_at <= ?)
-                  AND (? IS NULL OR username = ?)
-                  AND (? IS NULL OR entity_type = ?)
-                  AND (? IS NULL OR action_type = ?)
+                {where_clause}
                 """,
-                (
-                    start_str,
-                    start_str,
-                    end_str,
-                    end_str,
-                    username,
-                    username,
-                    entity_value,
-                    entity_value,
-                    action_value,
-                    action_value,
-                ),
+                params,
             )
             row = await cursor.fetchone()
             return int(row["total"]) if row else 0
