@@ -37,9 +37,9 @@ export type AuditListFilters = {
   limit?: number;
   start_time?: string;
   end_time?: string;
-  username?: string;
-  entity_type?: AuditEntityType;
-  action_type?: AuditActionType;
+  username?: string[];
+  entity_type?: AuditEntityType[];
+  action_type?: AuditActionType[];
 };
 
 export type AuditCountFilters = Omit<AuditListFilters, "offset" | "limit">;
