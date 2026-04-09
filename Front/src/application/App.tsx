@@ -9,6 +9,7 @@ import Products from "./PagesD/Products";
 import Users from "./PagesD/Users";
 import PaymentMethods from "./PagesD/PaymentMethods";
 import Sales from "./PagesD/Sales";
+import Auditoria from "./PagesD/Auditoria";
 
 const Redirect: Component<{ to: string }> = (props) => {
   const nav = useNavigate();
@@ -68,6 +69,10 @@ const App: Component = () => {
         <Route
           path="/dashboard/usuarios"
           component={withProtection(Users, "USUARIOS")}
+        />
+        <Route
+          path="/dashboard/auditoria"
+          component={withProtection(Auditoria, "AUDITORIA")}
         />
         <Route
           path="/dashboard/metodos-de-pago"

@@ -4,6 +4,7 @@ import Labels from "../../common/IconSvg/Labels";
 import Payment16Regular from "../../common/IconSvg/Payment16Regular";
 import User from "../../common/IconSvg/User";
 import Bag from "../../common/IconSvg/Bag";
+import NavReports from "../../common/IconSvg/NavReports";
 
 export type MenuItem = {
   label: string;
@@ -53,6 +54,13 @@ export const menu: MenuItem[] = [
     route: "/dashboard/usuarios",
     requiredPermission: "USUARIOS",
     icon: { component: User, props: { width: "20px", height: "20px" } },
+  },
+  {
+    label: "Auditoria",
+    key: "AUDITORIA",
+    route: "/dashboard/auditoria",
+    requiredPermission: "AUDITORIA",
+    icon: { component: NavReports, props: { width: "20px", height: "20px" } },
   },
 
 ];

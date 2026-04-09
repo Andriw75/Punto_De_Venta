@@ -1,0 +1,161 @@
+.container {
+  display: grid;
+  gap: 1rem;
+}
+
+.toolbar {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.9rem;
+  border: 1px solid #e4e4e7;
+  border-radius: 0.8rem;
+  background: #fafafa;
+}
+
+.title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #18181b;
+}
+
+.subtitle {
+  color: #52525b;
+  font-size: 0.92rem;
+}
+
+.filters {
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+
+.field {
+  display: grid;
+  gap: 0.32rem;
+}
+
+.label {
+  font-size: 0.82rem;
+  color: #52525b;
+}
+
+.input,
+.select {
+  border: 1px solid #d4d4d8;
+  border-radius: 0.55rem;
+  background: #fff;
+  color: #18181b;
+  padding: 0.45rem 0.6rem;
+}
+
+.actions {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.btnPrimary,
+.btnSoft {
+  border: none;
+  border-radius: 0.6rem;
+  padding: 0.56rem 0.9rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btnPrimary {
+  background: #0f766e;
+  color: #fff;
+}
+
+.btnSoft {
+  background: #e4e4e7;
+  color: #18181b;
+}
+
+.meta {
+  color: #52525b;
+  font-size: 0.88rem;
+}
+
+.tableWrap {
+  border: 1px solid #e4e4e7;
+  border-radius: 0.8rem;
+  overflow: hidden;
+  background: #fff;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  border-bottom: 1px solid #f4f4f5;
+  padding: 0.58rem 0.68rem;
+  text-align: left;
+  vertical-align: top;
+  font-size: 0.9rem;
+}
+
+.table th {
+  color: #3f3f46;
+  background: #fafafa;
+  font-size: 0.82rem;
+  letter-spacing: 0.01em;
+}
+
+.chip {
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  display: inline-flex;
+}
+
+.chipInsert { background: #dcfce7; color: #166534; }
+.chipUpdate { background: #e0f2fe; color: #075985; }
+.chipDelete { background: #fee2e2; color: #991b1b; }
+.chipMigrate { background: #fef3c7; color: #92400e; }
+
+.chipEntity {
+  background: #f4f4f5;
+  color: #3f3f46;
+}
+
+.changes {
+  margin-top: 0.35rem;
+}
+
+.changes summary {
+  cursor: pointer;
+  color: #0f766e;
+  font-size: 0.82rem;
+}
+
+.jsonBlock {
+  margin-top: 0.4rem;
+  background: #fafafa;
+  border: 1px solid #e4e4e7;
+  border-radius: 0.5rem;
+  padding: 0.45rem;
+  max-height: 12rem;
+  overflow: auto;
+  font-size: 0.75rem;
+}
+
+.emptyState {
+  color: #71717a;
+  text-align: center;
+  padding: 1.2rem;
+}
+
+@media (max-width: 768px) {
+  .tableWrap {
+    overflow-x: auto;
+  }
+
+  .table {
+    min-width: 880px;
+  }
+}

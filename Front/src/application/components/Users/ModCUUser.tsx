@@ -20,7 +20,7 @@ type UserEditSnapshot = {
   selectedPermissions: string[];
 };
 
-const PERMISSION_OPTIONS = ["PRODUCTOS", "VENTAS", "USUARIOS", "CATEGORIAS", "LOGS"] as const;
+const PERMISSION_OPTIONS = ["PRODUCTOS", "VENTAS", "USUARIOS", "CATEGORIAS", "AUDITORIA"] as const;
 
 const normalizePermissions = (values: string[]) => {
   const clean = values
