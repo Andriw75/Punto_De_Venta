@@ -170,6 +170,15 @@ class RepCategories(CachedRepository[CategoryResponse]):
 
             await conn.execute(
                 """
+                UPDATE product_snapshot
+                SET category_id = NULL
+                WHERE category_id = ?
+                """,
+                (category_id,)
+            )
+
+            await conn.execute(
+                """
                 DELETE FROM categories
                 WHERE id = ?
                 """,

@@ -67,6 +67,9 @@ app.include_router(paymentMethodsRW)
 from application.salesRW import salesRW
 app.include_router(salesRW)
 
+from application.auditR import auditR
+app.include_router(auditR)
+
 #####################################################
 import sys
 import os

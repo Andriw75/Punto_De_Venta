@@ -6,6 +6,7 @@ from infrastructure.rep_categories import RepCategories
 from infrastructure.rep_products import RepProducts
 from infrastructure.rep_payment_methods import RepPaymentMethods
 from infrastructure.rep_sales import RepSales
+from infrastructure.rep_audit import RepAudit
 from infrastructure.rep_auth import JWTManagerImpl,BcryptMnjCrypt
 from utils import resource_path
 
@@ -28,6 +29,8 @@ class Container(containers.DeclarativeContainer):
     payment_methods_rep = providers.Factory(RepPaymentMethods, db=sqlite_db, is_cache=True)
 
     sales_rep = providers.Factory(RepSales, db=sqlite_db)
+
+    audit_rep = providers.Factory(RepAudit, db=sqlite_db)
 
     
 

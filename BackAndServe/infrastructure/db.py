@@ -71,6 +71,24 @@ CREATE TABLE IF NOT EXISTS audit_log (
         tables.append(sql)
 
         sql = """
+CREATE INDEX IF NOT EXISTS idx_audit_log_created_at
+ON audit_log (created_at DESC);
+"""
+        tables.append(sql)
+
+        sql = """
+CREATE INDEX IF NOT EXISTS idx_audit_log_entity_action
+ON audit_log (entity_type, action_type);
+"""
+        tables.append(sql)
+
+        sql = """
+CREATE INDEX IF NOT EXISTS idx_audit_log_username
+ON audit_log (username);
+"""
+        tables.append(sql)
+
+        sql = """
 CREATE TABLE IF NOT EXISTS products (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     barcode VARCHAR UNIQUE,
@@ -91,7 +109,7 @@ CREATE TABLE IF NOT EXISTS product_snapshot (
     valid_from TIMESTAMP NOT NULL,
     valid_to TIMESTAMP,
     FOREIGN KEY (product_id) REFERENCES products(id),
-    FOREIGN KEY (category_id) REFERENCES categories(id)
+    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
 );
 """
         tables.append(sql)
@@ -132,7 +150,7 @@ CREATE TABLE IF NOT EXISTS sales (
             await self._connection.commit()
             
 
-    @asynccontextmanager
+    @asynccontextmanager    
     async def acquire(self):
         """Context manager para obtener la conexión SQLite."""
         if not self._initialized:
